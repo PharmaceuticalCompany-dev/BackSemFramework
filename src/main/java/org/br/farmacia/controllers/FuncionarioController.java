@@ -1,5 +1,6 @@
 package org.br.farmacia.controllers;
 
+//Gson é uma biblioteca do Google para converter objetos Java em JSON e vice-versa
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.br.farmacia.enums.Cargo;
@@ -15,22 +16,27 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+//WebServlet é uma anotação para mapear a classe a uma URL específica.
 @WebServlet("/funcionarios")
+//HttpServlet é a classe base para implementar servlets que respondem a requisições HTTP.
+//ServletContext fornece contexto da aplicação para compartilhar informações (como a conexão do banco).
 public class FuncionarioController extends HttpServlet {
 
     private FuncionarioService funcionarioService;
     private Gson gson = new Gson();
 
+    //init() é chamado pelo servidor uma vez quando o servlet é criado.
     @Override
     public void init() throws ServletException {
         ServletContext context = getServletContext();
         funcionarioService = new FuncionarioService(context);
 
-        Funcionario exemplo = new Funcionario("João da Silva", 5, 35, Genero.MASCULINO, Cargo.GERENTE, 5000);
-        funcionarioService.adicionarFuncionario(exemplo);
+        //Funcionario exemplo = new Funcionario("João da Silva", 5, 35, Genero.MASCULINO, Cargo.GERENTE, 5000);
+        //funcionarioService.adicionarFuncionario(exemplo);
     }
 
 
+    //quando recebe uma requisição get ele chama esse metodo.
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
