@@ -13,6 +13,10 @@ public class FuncionarioRepository {
 
     private final Connection connection;
 
+
+    //Aqui chama esse DBConnection que foi declarado la no inicializador do banco de dados
+    //o ServletContext representa a aplicação web em tempo de execução. Cada aplicação web
+    //tem um único ServletContext, e este é gerado quando a aplicação é implantada no servidor.
     public FuncionarioRepository(ServletContext context) {
         this.connection = (Connection) context.getAttribute("DBConnection");
     }
@@ -20,8 +24,10 @@ public class FuncionarioRepository {
     public Funcionario findById(int id) {
         String sql = "SELECT * FROM funcionario WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            //esse ps insere na primeira ? da string
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
+            //Verifica se há resultado, e transforma a linha do banco em objeto Funcionario.
             if (rs.next()) {
                 return mapResultSetToFuncionario(rs);
             }
@@ -34,6 +40,7 @@ public class FuncionarioRepository {
     public List<Funcionario> findAll() {
         List<Funcionario> lista = new ArrayList<>();
         String sql = "SELECT * FROM funcionario";
+        //statement sem parametro para consulta simples
         try (Statement stmt = connection.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
@@ -45,25 +52,25 @@ public class FuncionarioRepository {
         return lista;
     }
 
-    // Inserir novo funcionário
     public boolean save(Funcionario funcionario) {
         String sql = "INSERT INTO funcionario (id, nome, idade, genero, cargo, salario) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, funcionario.getId());
             ps.setString(2, funcionario.getNome());
             ps.setInt(3, funcionario.getIdade());
-            ps.setString(4, funcionario.getGenero().name()); // String no banco
-            ps.setString(5, funcionario.getCargo().name());  // String no banco
+            ps.setString(4, funcionario.getGenero().name());
+            ps.setString(5, funcionario.getCargo().name());
             ps.setDouble(6, funcionario.getSalario());
             int affected = ps.executeUpdate();
+            //Ele retorna um int indicando quantas linhas foram afetadas pela execução desse comando
             return affected == 1;
+            //Aqui, o metodo retorna true se exatamente uma linha foi afetada, indicando sucesso para essa operação específica
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    // Atualizar funcionário (por id)
     public boolean update(Funcionario funcionario) {
         String sql = "UPDATE funcionario SET nome = ?, idade = ?, genero = ?, cargo = ?, salario = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -81,7 +88,6 @@ public class FuncionarioRepository {
         return false;
     }
 
-    // Deletar funcionário por id
     public boolean delete(int id) {
         String sql = "DELETE FROM funcionario WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
