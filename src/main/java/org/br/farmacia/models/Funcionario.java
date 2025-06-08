@@ -28,8 +28,8 @@ public class Funcionario {
         this.genero = genero;
         this.cargo = cargo;
         this.salario = salario;
-        // benefícios e setor serão setados pelo Service
     }
+
 
     // Getters e Setters
     public String getNome() { return nome; }

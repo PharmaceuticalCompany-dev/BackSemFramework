@@ -8,43 +8,48 @@ import org.br.farmacia.enums.TipoSetor;
 import org.br.farmacia.models.Beneficios;
 import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.models.Setor;
+import org.br.farmacia.repositories.FuncionarioRepository;
+
+import javax.servlet.ServletContext;
 
 public class FuncionarioService {
 
-    private List<Funcionario> funcionarios;
+    private final FuncionarioRepository funcionarioRepository;
 
-    public FuncionarioService(){
-        this.funcionarios = new ArrayList<>();
+    public FuncionarioService(ServletContext context) {
+        this.funcionarioRepository = new FuncionarioRepository(context);
     }
+
 
     public void inicializarFuncionario(Funcionario funcionario) {
         funcionario.setSetor(definirSetorPorCargo(funcionario.getCargo()));
         funcionario.setBeneficios(calcularBeneficiosPorCargo(funcionario.getCargo()));
     }
 
-    public void adicionarFuncionario(Funcionario funcionario) {
+    public boolean adicionarFuncionario(Funcionario funcionario) {
         if (funcionario != null) {
             inicializarFuncionario(funcionario);
-            funcionarios.add(funcionario);
+            return funcionarioRepository.save(funcionario);
         }
+        return false;
     }
 
     public void removerFuncionario(int id) {
-        funcionarios.removeIf(f -> f.getId() == id);
+        funcionarioRepository.delete(id);
     }
 
-    public void editarFuncionario(int id, Funcionario novoFuncionario) {
-        for (int i = 0; i < funcionarios.size(); i++) {
-            if (funcionarios.get(i).getId() == id) {
-                inicializarFuncionario(novoFuncionario); // atualiza setor e benefícios
-                funcionarios.set(i, novoFuncionario);
-                return;
-            }
+    public boolean editarFuncionario(int id, Funcionario novoFuncionario) {
+        Funcionario existente = funcionarioRepository.findById(id);
+        if (existente != null) {
+            inicializarFuncionario(novoFuncionario); // atualiza setor e benefícios
+            novoFuncionario.setId(id); // garante que o ID permaneça o mesmo
+            return funcionarioRepository.update(novoFuncionario);
         }
+        return false;
     }
 
     public List<Funcionario> listarFuncionarios() {
-        return funcionarios;
+        return  funcionarioRepository.findAll();
     }
 
 
@@ -97,5 +102,9 @@ public class FuncionarioService {
         }
 
         return new Beneficios(valeRefeicao, valeAlimentacao, planoSaude, planoOdonto);
+    }
+
+    public Funcionario buscarPorId(int idEditar) {
+        return funcionarioRepository.findById(idEditar);
     }
 }
