@@ -25,7 +25,7 @@ public class EmpresaController extends HttpServlet {
     public void init() throws ServletException {
         // Cria a empresa com listas vazias
         Empresa empresa = new Empresa(
-                "Farmácia XYZ",
+                "Farmacia XfasdfsafsdafsafsafsYZ",
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()

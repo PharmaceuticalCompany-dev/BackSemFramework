@@ -1,17 +1,16 @@
-version: '3.8'
+version: '3.7'
 
 services:
-  db:
-    image: postgres:15
-    container_name: farmaciasenai_postgres
-    environment:
-      POSTGRES_DB: farmaciasenai
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
+  postgres:
+    image: bitnami/postgresql:latest
     ports:
-      - "5432:5432"
+      - '8010:5432'
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=farmacia
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - 'ifood_pg_data:/bitnami/postgresql'
 
 volumes:
-  pgdata:
+  ifood_pg_data:
