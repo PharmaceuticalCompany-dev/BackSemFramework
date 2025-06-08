@@ -7,11 +7,10 @@ public class Produto {
     private double precoVenda;
     private int quantidadeEstoque;
 
-    // Construtor padrão
+
     public Produto() {
     }
 
-    // Construtor completo com ID
     public Produto(int id, String nome, double precoCompra, double precoVenda, int quantidadeEstoque) {
         this.id = id;
         this.nome = nome;
@@ -20,7 +19,6 @@ public class Produto {
         this.quantidadeEstoque = quantidadeEstoque;
     }
 
-    // Construtor sem ID, caso queira gerar depois
     public Produto(String nome, double precoCompra, double precoVenda, int quantidadeEstoque) {
         this.nome = nome;
         this.precoCompra = precoCompra;

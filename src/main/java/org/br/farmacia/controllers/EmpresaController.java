@@ -3,6 +3,7 @@ package org.br.farmacia.controllers;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+import org.br.farmacia.models.Empresa;
 import org.br.farmacia.models.Produto;
 import org.br.farmacia.models.VendasProgramadas;
 import org.br.farmacia.services.EmpresaService;
@@ -22,13 +23,19 @@ public class EmpresaController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        empresaService = new EmpresaService(
+        // Cria a empresa com listas vazias
+        Empresa empresa = new Empresa(
                 "Farmácia XYZ",
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()
         );
-        empresaService.getProdutos().add(new Produto(1,"Paracetamol", 1.0, 2.0, 3));
+
+        // Adiciona um produto na empresa
+        empresa.getProdutos().add(new Produto(1,"Paracetamol", 1.0, 2.0, 3));
+
+        // Cria o service passando a empresa
+        empresaService = new EmpresaService(empresa);
     }
 
     @Override
@@ -39,23 +46,30 @@ public class EmpresaController extends HttpServlet {
         PrintWriter out = resp.getWriter();
 
         if ("lucro".equals(action)) {
-            int ano = Integer.parseInt(req.getParameter("ano"));
-            int mes = Integer.parseInt(req.getParameter("mes"));
+            try {
+                int ano = Integer.parseInt(req.getParameter("ano"));
+                int mes = Integer.parseInt(req.getParameter("mes"));
 
-            double lucro = empresaService.lucroMes(ano, mes);
+                double lucro = empresaService.lucroMes(ano, mes);
 
-            JsonObject json = new JsonObject();
-            json.addProperty("ano", ano);
-            json.addProperty("mes", mes);
-            json.addProperty("lucro", lucro);
+                JsonObject json = new JsonObject();
+                json.addProperty("ano", ano);
+                json.addProperty("mes", mes);
+                json.addProperty("lucro", lucro);
 
-            out.println(gson.toJson(json));
+                out.println(gson.toJson(json));
+            } catch (NumberFormatException e) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                JsonObject json = new JsonObject();
+                json.addProperty("error", "Parâmetros 'ano' e 'mes' inválidos");
+                out.println(gson.toJson(json));
+            }
         } else if ("vendas".equals(action)) {
             List<VendasProgramadas> vendas = empresaService.getVendasProgramadas();
             out.println(gson.toJson(vendas));
         } else {
             JsonObject json = new JsonObject();
-            json.addProperty("nome", empresaService.getNome());
+            json.addProperty("nome", empresaService.getEmpresa().getNome());
             out.println(gson.toJson(json));
         }
         out.flush();
@@ -64,17 +78,18 @@ public class EmpresaController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            ProdutoProdutoVendaInput input = gson.fromJson(req.getReader(), ProdutoProdutoVendaInput.class);
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
 
-            Produto produto = empresaService.getProdutos()
+        try {
+            ProdutoVendaInput input = gson.fromJson(req.getReader(), ProdutoVendaInput.class);
+
+            Produto produto = empresaService.getEmpresa()
+                    .getProdutos()
                     .stream()
                     .filter(p -> p.getId() == input.produtoId)
                     .findFirst()
                     .orElse(null);
-
-            resp.setContentType("application/json");
-            PrintWriter out = resp.getWriter();
 
             if (produto == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -83,15 +98,14 @@ public class EmpresaController extends HttpServlet {
                 empresaService.programarVenda(input.ano, input.mes, produto, input.quantidade);
                 out.println("{\"message\":\"Venda programada com sucesso\"}");
             }
-            out.flush();
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.setContentType("application/json");
-            resp.getWriter().println("{\"error\":\"Erro ao processar requisição POST: " + e.getMessage() + "\"}");
+            out.println("{\"error\":\"Erro ao processar requisição POST: " + e.getMessage() + "\"}");
         }
+        out.flush();
     }
 
-    private static class ProdutoProdutoVendaInput {
+    private static class ProdutoVendaInput {
         int ano;
         int mes;
         int produtoId;

@@ -6,6 +6,12 @@ public class Transportadora {
     private String nome;
     private ArrayList<String> locaisAtendimento = new ArrayList<>();
 
+
+    public Transportadora(String nome, ArrayList<String> locaisAtendimento) {
+        this.nome = nome;
+        this.locaisAtendimento = new ArrayList<>(locaisAtendimento);
+    }
+
     public Transportadora() {
     }
 
