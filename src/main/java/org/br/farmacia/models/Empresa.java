@@ -7,12 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Empresa implements ICalculavel {
+    private Integer id;
     private String nome;
     private double caixaTotal;
     private List<Setor> setores;
     private List<Produto> produtos;
     private List<Transportadora> transportadoras;
     private List<VendasProgramadas> vendasProgramadas;
+
+    public Empresa() {
+        this.caixaTotal = 200000.00;
+        this.vendasProgramadas = new ArrayList<>();
+    }
 
     public Empresa(String nome, List<Setor> setores, List<Produto> produtos, List<Transportadora> transportadoras) {
         this.nome = nome;
@@ -21,6 +27,14 @@ public class Empresa implements ICalculavel {
         this.produtos = produtos;
         this.transportadoras = transportadoras;
         this.vendasProgramadas = new ArrayList<>();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getNome() {

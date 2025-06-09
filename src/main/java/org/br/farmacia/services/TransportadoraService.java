@@ -1,42 +1,54 @@
 package org.br.farmacia.services;
 
 import org.br.farmacia.models.Transportadora;
+import org.br.farmacia.repositories.TransportadoraRepository;
 
+import javax.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TransportadoraService {
     List<Transportadora> transportadoras;
 
-    public TransportadoraService() {
+    private final TransportadoraRepository transportadoraRepository;
+
+    public TransportadoraService(ServletContext context) {
         this.transportadoras = new ArrayList<>();
+        this.transportadoraRepository = new TransportadoraRepository(context);
     }
 
 
-    public void adicionarTransportadora(Transportadora transportadora) {
+    public boolean adicionarTransportadora(Transportadora transportadora) {
         if (transportadora != null) {
-            transportadoras.add(transportadora);
+            return transportadoraRepository.save(transportadora);
         }
+        return false;
     }
 
-    public void removerTransportadora(Transportadora transportadora) {
+    public boolean removerTransportadora(Transportadora transportadora) {
         if (transportadora != null) {
-            transportadoras.remove(transportadora);
+            return transportadoras.remove(transportadora);
         }
+        return false;
     }
 
-    public void editarTransportador(Transportadora transportadoraAtualizada) {
-        if (transportadoraAtualizada != null) {
-            for(int i = 0; i  < transportadoras.size(); i++){
-                if(transportadoras.get(i).getNome().equals(transportadoraAtualizada.getNome())){
-                    transportadoras.set(i, transportadoraAtualizada);
-                    return;
-                }
-            }
+    public boolean editarTransportadora(int id, Transportadora transportadora) {
+        Transportadora existente = transportadoraRepository.findById(id);
+
+        if (existente != null) {
+            existente.setNome(transportadora.getNome());
+            existente.setLocaisAtendimento(transportadora.getLocaisAtendimento());
+
+            return transportadoraRepository.update(existente);
         }
+
+        return false;
     }
+
 
     public List<Transportadora> listarTransportadoras() {
+        transportadoras = transportadoraRepository.findAll();
         return transportadoras;
     }
+
 }
