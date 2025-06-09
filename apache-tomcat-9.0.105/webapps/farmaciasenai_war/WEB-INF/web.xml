@@ -10,4 +10,10 @@
     <servlet-mapping>
         <servlet-name>EmpresaController</servlet-name> <url-pattern>/api/empresa</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>FuncionarioController</servlet-name>  <servlet-class>org.br.farmacia.controllers.FuncionarioController</servlet-class> </servlet>
+    <servlet-mapping>
+        <servlet-name>FuncionarioController</servlet-name> <url-pattern>/api/funcionarios</url-pattern>
+    </servlet-mapping>
 </web-app>
