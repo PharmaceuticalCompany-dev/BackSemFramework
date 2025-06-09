@@ -16,4 +16,10 @@
     <servlet-mapping>
         <servlet-name>FuncionarioController</servlet-name> <url-pattern>/api/funcionarios</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>TransportadoraController</servlet-name>  <servlet-class>org.br.farmacia.controllers.TransportadoraController</servlet-class> </servlet>
+    <servlet-mapping>
+        <servlet-name>TransportadoraController</servlet-name> <url-pattern>/api/transportadora</url-pattern>
+    </servlet-mapping>
 </web-app>

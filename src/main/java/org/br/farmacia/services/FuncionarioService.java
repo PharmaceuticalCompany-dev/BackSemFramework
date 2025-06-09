@@ -41,8 +41,8 @@ public class FuncionarioService {
     public boolean editarFuncionario(int id, Funcionario novoFuncionario) {
         Funcionario existente = funcionarioRepository.findById(id);
         if (existente != null) {
-            inicializarFuncionario(novoFuncionario); // atualiza setor e benefícios
-            novoFuncionario.setId(id); // garante que o ID permaneça o mesmo
+            inicializarFuncionario(novoFuncionario);
+            novoFuncionario.setId(id);
             return funcionarioRepository.update(novoFuncionario);
         }
         return false;

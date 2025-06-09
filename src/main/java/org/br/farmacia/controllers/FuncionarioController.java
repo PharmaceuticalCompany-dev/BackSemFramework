@@ -36,6 +36,7 @@ public class FuncionarioController extends HttpServlet {
     }
 
 
+
     //quando recebe uma requisição get ele chama esse metodo.
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
