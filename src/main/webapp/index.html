@@ -2,15 +2,18 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="imagens/logoFarmacia.png" />
+
     <title>Farmacia SENAI - Funcionários</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #2c3e50; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #15464F; }
+        h1 { color: #ffffff; }
         label { display: block; margin-top: 10px; }
         input, select { padding: 5px; width: 200px; }
         button { margin-top: 15px; padding: 8px 15px; }
         #funcionarios-list { margin-top: 20px; }
         .funcionario-item { border-bottom: 1px solid #ccc; padding: 5px 0; }
+        img {height: 1000px;}
         .error { color: red; }
         .success { color: green; }
     </style>
@@ -18,11 +21,13 @@
 <body>
 
 <h1>Funcionários - Farmacia SENAI</h1>
-
+<img src="/src/main/webapp/imagens/logoFarmacia.png" alt="logoFarmacia">
 <section>
     <h2>Lista de Funcionários</h2>
     <div id="funcionarios-list">Carregando...</div>
 </section>
+
+
 
 <section>
     <h2>Adicionar Funcionário</h2>
