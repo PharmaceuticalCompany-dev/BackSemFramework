@@ -1,20 +1,22 @@
 package org.br.farmacia.controllers;
 
+import org.br.farmacia.models.NegiciosEmAndamento;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class VendasProgramadas {
-    private List<org.br.farmacia.models.VendasProgramadas> negocios;
+public class NegociosController {
+    private List<NegiciosEmAndamento> negocios;
 
-    public VendasProgramadas() {
-        this.negocios = new ArrayList<org.br.farmacia.models.VendasProgramadas>();
+    public NegociosController() {
+        this.negocios = new ArrayList<NegiciosEmAndamento>();
     }
 
-    void adicionarVenda(org.br.farmacia.models.VendasProgramadas venda){//Adiciona mais uma venda programada
-        this.negocios.add(venda);
+    void adicionarVenda(NegiciosEmAndamento negocios){//Adiciona mais uma venda programada
+        this.negocios.add(negocios);
     }
 
-    public List<org.br.farmacia.models.VendasProgramadas> getVendas(){//Usado para listar as vendas
+    public List<NegiciosEmAndamento> getVendas(){//Usado para listar as vendas
         return this.negocios;
     }
 }
