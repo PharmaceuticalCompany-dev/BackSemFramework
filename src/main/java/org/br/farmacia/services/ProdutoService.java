@@ -1,50 +1,45 @@
 package org.br.farmacia.services;
 
-import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.models.Produto;
+import org.br.farmacia.repositories.ProdutoRepository;
 
-import java.util.ArrayList;
+import javax.servlet.ServletContext;
 import java.util.List;
 
 public class ProdutoService {
-    private List<Produto> produtos;
 
-    public ProdutoService() {
-        this.produtos = new ArrayList<>();
+    private final ProdutoRepository produtoRepository;
+
+    public ProdutoService(ServletContext context) {
+        this.produtoRepository = new ProdutoRepository(context);
     }
 
-    public void adicionarProduto(Produto produto){
-        if(produto != null){
-            this.produtos.add(produto);
+    public boolean adicionarProduto(Produto produto) {
+        if (produto != null) {
+            return produtoRepository.save(produto);
         }
+        return false;
     }
 
-    public void removerProduto(Produto produto){
-        if(produto != null){
-            this.produtos.remove(produto);
+    public boolean removerProduto(int id) {
+        return produtoRepository.delete(id);
+    }
+
+    public boolean editarProduto(Produto produtoAtualizado) {
+        if (produtoAtualizado != null) {
+            return produtoRepository.update(produtoAtualizado);
         }
+        return false;
     }
 
-    public void editarProduto(Produto produtoAtualizado){
-        if(produtoAtualizado != null){
-            for(int i = 0; i < this.produtos.size(); i++){
-                if(this.produtos.get(i).getNome().equals(produtoAtualizado.getNome())){
-                    this.produtos.set(i, produtoAtualizado);
-                    return;
-                }
-            }
-        }
-    }
-
-    public List<Produto> listarProdutos(){
-        return produtos;
+    public List<Produto> listarProdutos() {
+        return produtoRepository.findAll();
     }
 
     public int quantidadeTotalEstoque() {
-        int total = 0;
-        for(Produto produto : produtos) {
-            total += produto.getQuantidadeEstoque();
-        }
-        return total;
+        List<Produto> produtos = listarProdutos();
+        return produtos.stream()
+                .mapToInt(Produto::getQuantidadeEstoque)
+                .sum();
     }
 }

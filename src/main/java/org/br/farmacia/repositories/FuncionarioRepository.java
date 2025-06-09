@@ -53,14 +53,13 @@ public class FuncionarioRepository {
     }
 
     public boolean save(Funcionario funcionario) {
-        String sql = "INSERT INTO funcionario (id, nome, idade, genero, cargo, salario) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO funcionario (nome, idade, genero, cargo, salario) VALUES (?, ?, ?, ?, ?)\n";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, funcionario.getId());
-            ps.setString(2, funcionario.getNome());
-            ps.setInt(3, funcionario.getIdade());
-            ps.setString(4, funcionario.getGenero().name());
-            ps.setString(5, funcionario.getCargo().name());
-            ps.setDouble(6, funcionario.getSalario());
+            ps.setString(1, funcionario.getNome());
+            ps.setInt(2, funcionario.getIdade());
+            ps.setString(3, funcionario.getGenero().name());
+            ps.setString(4, funcionario.getCargo().name());
+            ps.setDouble(5, funcionario.getSalario());
             int affected = ps.executeUpdate();
             //Ele retorna um int indicando quantas linhas foram afetadas pela execução desse comando
             return affected == 1;
