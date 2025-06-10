@@ -35,11 +35,17 @@ public class FuncionarioController extends HttpServlet {
         //funcionarioService.adicionarFuncionario(exemplo);
     }
 
-
+    private void setCorsHeaders(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        resp.setHeader("Access-Control-Max-Age", "3600");
+    }
 
     //quando recebe uma requisição get ele chama esse metodo.
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
@@ -50,6 +56,7 @@ public class FuncionarioController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 

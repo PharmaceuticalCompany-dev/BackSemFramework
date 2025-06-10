@@ -25,8 +25,16 @@ public class ProdutoController extends HttpServlet {
         produtoService = new ProdutoService(context);
     }
 
+    private void setCorsHeaders(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        resp.setHeader("Access-Control-Max-Age", "3600");
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
@@ -37,6 +45,7 @@ public class ProdutoController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 

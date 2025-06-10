@@ -95,7 +95,7 @@ public class EmpresaService implements ICalculavel {
                     VendasProgramadas vp = new VendasProgramadas();
                     vp.setValorVenda(produto.getPrecoVenda() * quantidade);
                     vp.setCustoProduto(produto.getPrecoCompra() * quantidade);
-                    vp.dataVenda = LocalDate.of(ano, mes, 1); // Dia fixo 1
+                    vp.setDataVenda(LocalDate.of(ano, mes, 1)); // Dia fixo 1
 
                     lista.add(vp);
                 }
