@@ -31,10 +31,8 @@ public class EmpresaController extends HttpServlet {
                 new ArrayList<>()
         );
 
-        // Adiciona um produto na empresa
         empresa.getProdutos().add(new Produto(1,"Paracetamol", 1.0, 2.0, 3));
 
-        // Cria o service passando a empresa
         empresaService = new EmpresaService(empresa);
     }
 

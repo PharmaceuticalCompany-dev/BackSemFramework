@@ -27,9 +27,16 @@ public class TransportadoraController extends HttpServlet {
         transportadoraService = new TransportadoraService(servletContext);
     }
 
+    private void setCorsHeaders(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        resp.setHeader("Access-Control-Max-Age", "3600");
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
@@ -40,6 +47,7 @@ public class TransportadoraController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
@@ -52,7 +60,6 @@ public class TransportadoraController extends HttpServlet {
                     new ArrayList<>(input.locaisAtendimento)
             );
 
-            // 🚨 Aqui está o que estava faltando!
             novaTransportadora.setEmpresaId(input.empresaId);
 
             transportadoraService.adicionarTransportadora(novaTransportadora);

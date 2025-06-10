@@ -1,77 +1,47 @@
 package org.br.farmacia.services;
 
 import org.br.farmacia.models.VendasProgramadas;
+import org.br.farmacia.repositories.FuncionarioRepository;
+import org.br.farmacia.repositories.VendasProgramadasRepository;
 
-import java.util.ArrayList;
+import javax.servlet.ServletContext;
 import java.util.List;
 
 public class VendasProgramadasService {
+    List<VendasProgramadas> vendasProgramadas;
 
-    private List<VendasProgramadas> vendas;
+    private VendasProgramadasRepository vendasProgramadasRepository;
 
-    public VendasProgramadasService() {
-        this.vendas = new ArrayList<>();
+    public VendasProgramadasService(ServletContext context) {
+        this.vendasProgramadasRepository = new VendasProgramadasRepository(context);
     }
 
-    public void adicionarVenda(VendasProgramadas venda) {
-        if (venda != null) {
-            vendas.add(venda);
+    public boolean adicionarVendaProgramada(VendasProgramadas vendaProgramada) {
+        if(vendaProgramada != null) {
+            return  vendasProgramadasRepository.save(vendaProgramada);
         }
+        return false;
     }
 
-    public void removerVenda(VendasProgramadas venda) {
-        vendas.remove(venda);
-    }
+    public void removerVendaProgramada(int id) {vendasProgramadasRepository.delete(id);}
 
-    public List<VendasProgramadas> listarVendas() {
-        return new ArrayList<>(vendas);
-    }
+    public boolean editarVendaProgramada(int id, VendasProgramadas vendaProgramada) {
+        VendasProgramadas existente = vendasProgramadasRepository.findById(id);
 
-    public List<VendasProgramadas> buscarPorAno(int ano) {
-        List<VendasProgramadas> resultado = new ArrayList<>();
-        for (VendasProgramadas venda : vendas) {
-            if (venda.getAno() == ano) {
-                resultado.add(venda);
-            }
+        if (existente != null) {
+            existente.setDataVenda(vendaProgramada.getDataVenda());
+            existente.setValorVenda(vendaProgramada.getValorVenda());
+            existente.setCustoProduto(vendaProgramada.getCustoProduto());
+            existente.setProdutoId(vendaProgramada.getProdutoId());
+
+            return vendasProgramadasRepository.update(existente);
         }
-        return resultado;
+
+        return false;
     }
 
-    public List<VendasProgramadas> buscarPorMesEAno(int mes, int ano) {
-        List<VendasProgramadas> resultado = new ArrayList<>();
-        for (VendasProgramadas venda : vendas) {
-            if (venda.getAno() == ano && venda.getMes() == mes) {
-                resultado.add(venda);
-            }
-        }
-        return resultado;
-    }
-
-    public double calcularLucroTotal() {
-        double total = 0;
-        for (VendasProgramadas venda : vendas) {
-            total += venda.getLucro();
-        }
-        return total;
-    }
-
-    public double calcularLucroPorAno(int ano) {
-        double total = 0;
-        for (VendasProgramadas venda : vendas) {
-            if (venda.getAno() == ano) {
-                total += venda.getLucro();
-            }
-        }
-        return total;
-    }
-
-    public double calcularLucroPorMesEAno(int mes, int ano) {
-        double total = 0;
-        for (VendasProgramadas venda : vendas) {
-            if (venda.getAno() == ano && venda.getMes() == mes) {
-                total += venda.getLucro();
-            }
-        }
-        return total;
+    public List<VendasProgramadas> listar() {
+        vendasProgramadas = vendasProgramadasRepository.findAll();
+        return vendasProgramadas;
     }
 }
