@@ -97,7 +97,6 @@ public class FuncionarioService {
                 valeAlimentacao *= 1.2;
                 break;
             case ATENDENTE:
-                // sem alteração
                 break;
         }
 

@@ -1,54 +1,117 @@
 package org.br.farmacia.services;
 
-import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.models.Setor;
 import org.br.farmacia.repositories.SetorRepository;
-import javax.servlet.ServletContext;
-import java.util.Collections;
-import java.util.List;
+import org.br.farmacia.database.ConexaoBanco; // Importar sua classe de conexão
 
+import javax.servlet.ServletContext;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SetorService {
 
     private final SetorRepository setorRepository;
-    private final FuncionarioService funcionarioService;
-
+    private final ConexaoBanco conexaoBanco;
     public SetorService(ServletContext context) {
-        this.setorRepository = new SetorRepository(context);
-         this.funcionarioService = new FuncionarioService(context);
+        this.conexaoBanco = (ConexaoBanco) context.getAttribute("DBConnectionProvider");
+        Connection connection = null;
+        connection = conexaoBanco.getConnection();
+        this.setorRepository = new SetorRepository(connection);
     }
+
+
+    public SetorService(Connection connection) {
+        this.setorRepository = new SetorRepository(connection);
+        this.conexaoBanco = null;
+    }
+
 
     public boolean adicionarSetor(Setor setor) {
-        if (setor != null) {
-            return setorRepository.save(setor);
+
+        Connection conn = null;
+        try {
+            conn = conexaoBanco.getConnection();
+            SetorRepository repository = new SetorRepository(conn);
+            return repository.save(setor);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Erro ao fechar conexão no adicionarSetor: " + e.getMessage());
+                }
+            }
         }
-        return false;
-    }
-
-    public void removerSetor(int id) {
-        setorRepository.delete(id);
-    }
-
-    public boolean editarSetor(int id, Setor novoSetor) {
-        Setor existente = setorRepository.findById(id);
-        if (existente != null) {
-            novoSetor.setId(id);
-            return setorRepository.update(novoSetor);
-        }
-        return false;
-    }
-
-    public List<Setor> listarSetores() {
-        List<Setor> setores = setorRepository.findAll();
-        return setores;
     }
 
     public Setor buscarPorId(int id) {
-        Setor setor = setorRepository.findById(id);
-        if (setor != null) {
-            List<Funcionario> funcionariosDoSetor = Collections.singletonList(funcionarioService.buscarPorId(setor.getId()));
-            setor.setFuncionarios(funcionariosDoSetor);
+        Connection conn = null;
+        try {
+            conn = conexaoBanco.getConnection();
+            SetorRepository repository = new SetorRepository(conn);
+            return repository.findById(id);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Erro ao fechar conexão no buscarPorId: " + e.getMessage());
+                }
+            }
         }
-        return setor;
+    }
+
+    public List<Setor> listarSetores() {
+        Connection conn = null;
+        try {
+            conn = conexaoBanco.getConnection();
+            SetorRepository repository = new SetorRepository(conn);
+            return repository.findAll();
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Erro ao fechar conexão no listarSetores: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public boolean editarSetor(int id, Setor setorAtualizado) {
+        Connection conn = null;
+        try {
+            conn = conexaoBanco.getConnection();
+            SetorRepository repository = new SetorRepository(conn);
+            setorAtualizado.setId(id);
+            return repository.update(setorAtualizado);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Erro ao fechar conexão no editarSetor: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public boolean removerSetor(int id) {
+        Connection conn = null;
+        try {
+            conn = conexaoBanco.getConnection();
+            SetorRepository repository = new SetorRepository(conn);
+            return repository.delete(id);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Erro ao fechar conexão no removerSetor: " + e.getMessage());
+                }
+            }
+        }
     }
 }
