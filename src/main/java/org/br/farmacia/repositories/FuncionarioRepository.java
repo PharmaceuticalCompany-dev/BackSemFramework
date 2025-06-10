@@ -37,6 +37,21 @@ public class FuncionarioRepository {
         return null;
     }
 
+    public List<Funcionario> findBySetorId(int setorId) {
+        List<Funcionario> lista = new ArrayList<>();
+        String sql = "SELECT * FROM funcionario WHERE id_setor = ?"; // Assuming 'id_setor' is the foreign key in your 'funcionario' table
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, setorId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                lista.add(mapResultSetToFuncionario(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
     public List<Funcionario> findAll() {
         List<Funcionario> lista = new ArrayList<>();
         String sql = "SELECT * FROM funcionario";

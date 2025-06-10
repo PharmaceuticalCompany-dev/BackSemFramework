@@ -1,74 +1,54 @@
 package org.br.farmacia.services;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.br.farmacia.enums.TipoSetor;
 import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.models.Setor;
+import org.br.farmacia.repositories.SetorRepository;
+import javax.servlet.ServletContext;
+import java.util.Collections;
+import java.util.List;
+
 
 public class SetorService {
 
-    private List<Setor> setores;
+    private final SetorRepository setorRepository;
+    private final FuncionarioService funcionarioService;
 
-    public SetorService() {
-        this.setores = new ArrayList<>();
+    public SetorService(ServletContext context) {
+        this.setorRepository = new SetorRepository(context);
+         this.funcionarioService = new FuncionarioService(context);
     }
 
-    public void adicionarSetor(Setor setor) {
-        if (setor != null && buscarPorTipo(setor.getTipoSetor()) == null) {
-            setores.add(setor);
+    public boolean adicionarSetor(Setor setor) {
+        if (setor != null) {
+            return setorRepository.save(setor);
         }
+        return false;
     }
 
-    public void editarSetor(Setor setorAtualizado) {
-        if (setorAtualizado != null) {
-            for (int i = 0; i < setores.size(); i++) {
-                Setor setorExistente = setores.get(i);
-                if (setorExistente.getTipoSetor().equals(setorAtualizado.getTipoSetor())) {
-                    setores.set(i, setorAtualizado);
-                    return;
-                }
-            }
+    public void removerSetor(int id) {
+        setorRepository.delete(id);
+    }
+
+    public boolean editarSetor(int id, Setor novoSetor) {
+        Setor existente = setorRepository.findById(id);
+        if (existente != null) {
+            novoSetor.setId(id);
+            return setorRepository.update(novoSetor);
         }
+        return false;
     }
-
 
     public List<Setor> listarSetores() {
+        List<Setor> setores = setorRepository.findAll();
         return setores;
     }
 
-    public Setor buscarPorTipo(TipoSetor tipo) {
-        for (Setor s : setores) {
-            if (s.getTipoSetor().equals(tipo)) {
-                return s;
-            }
+    public Setor buscarPorId(int id) {
+        Setor setor = setorRepository.findById(id);
+        if (setor != null) {
+            List<Funcionario> funcionariosDoSetor = Collections.singletonList(funcionarioService.buscarPorId(setor.getId()));
+            setor.setFuncionarios(funcionariosDoSetor);
         }
-        return null;
-    }
-
-    public void adicionarFuncionarioAoSetor(Funcionario funcionario) {
-        if (funcionario == null || funcionario.getSetor() == null) {
-            return;
-        }
-
-        TipoSetor tipo = funcionario.getSetor().getTipoSetor();
-        Setor setorEncontrado = buscarPorTipo(tipo);
-
-        if (setorEncontrado == null) {
-            Setor novoSetor = new Setor(tipo, new ArrayList<>());
-            novoSetor.adicionarFuncionario(funcionario);
-            setores.add(novoSetor);
-        } else {
-            setorEncontrado.adicionarFuncionario(funcionario);
-        }
-    }
-
-    public int contarTotalFuncionarios() {
-        int total = 0;
-        for (Setor setor : setores) {
-            total += setor.getQuantidadeFuncionarios();
-        }
-        return total;
+        return setor;
     }
 }
