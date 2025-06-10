@@ -1,17 +1,34 @@
 package org.br.farmacia.models;
 
-import java.util.List;
-
 import org.br.farmacia.enums.TipoSetor;
+import java.util.List;
+import java.util.ArrayList; // Added for the constructor
 
 public class Setor {
-
+    private int id; // Assuming an ID for database operations
     private TipoSetor tipoSetor;
-    private List<Funcionario> funcionarios;
+    private List<Funcionario> funcionarios; // As per UML
 
+    // Constructor for creating new Setor objects (without ID from DB)
     public Setor(TipoSetor tipoSetor, List<Funcionario> funcionarios) {
         this.tipoSetor = tipoSetor;
         this.funcionarios = funcionarios;
+    }
+
+    // Constructor for loading from DB (with ID)
+    public Setor(int id, TipoSetor tipoSetor, List<Funcionario> funcionarios) {
+        this.id = id;
+        this.tipoSetor = tipoSetor;
+        this.funcionarios = funcionarios;
+    }
+
+    // Getters and Setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public TipoSetor getTipoSetor() {
@@ -30,22 +47,5 @@ public class Setor {
         this.funcionarios = funcionarios;
     }
 
-    public int getQuantidadeFuncionarios() {
-        return funcionarios != null ? funcionarios.size() : 0;
-    }
-
-    public void adicionarFuncionario(Funcionario funcionario) {
-        if (funcionarios != null) {
-            funcionarios.add(funcionario);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "Setor{" +
-                "tipoSetor='" + tipoSetor + '\'' +
-                ", quantidadeFuncionarios=" + getQuantidadeFuncionarios() +
-                '}';
-    }
-
+    // You might also want to override toString(), equals(), and hashCode()
 }
