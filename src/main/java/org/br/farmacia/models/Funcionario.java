@@ -1,5 +1,5 @@
 package org.br.farmacia.models;
-
+//test do commit
 import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.Genero;
 import org.br.farmacia.models.Beneficios;
