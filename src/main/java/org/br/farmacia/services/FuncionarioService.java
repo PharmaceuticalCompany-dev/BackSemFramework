@@ -14,15 +14,20 @@ import javax.servlet.ServletContext;
 public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
+    // Opcionalmente, se você tiver um SetorRepository para carregar setores existentes do banco
+    // private final SetorRepository setorRepository;
 
     public FuncionarioService(ServletContext context) {
         this.funcionarioRepository = new FuncionarioRepository(context);
+        // this.setorRepository = new SetorRepository(context); // Se precisar
     }
 
-
+    // Este método agora preenche os atributos de benefício diretamente no objeto Funcionario
     public void inicializarFuncionario(Funcionario funcionario) {
+        // Define o setor
         funcionario.setSetor(definirSetorPorCargo(funcionario.getCargo()));
-        funcionario.setBeneficios(calcularBeneficiosPorCargo(funcionario.getCargo()));
+        // Calcula e define os benefícios diretamente no objeto Funcionario
+        calcularEAtribuirBeneficiosPorCargo(funcionario);
     }
 
     public boolean adicionarFuncionario(Funcionario funcionario) {
@@ -40,8 +45,10 @@ public class FuncionarioService {
     public boolean editarFuncionario(int id, Funcionario novoFuncionario) {
         Funcionario existente = funcionarioRepository.findById(id);
         if (existente != null) {
+            // A lógica de inicialização pode ser reaplicada ao novoFuncionario
+            // para garantir que os benefícios e setor sejam calculados/atribuídos corretamente
             inicializarFuncionario(novoFuncionario);
-            novoFuncionario.setId(id);
+            novoFuncionario.setId(id); // Garante que o ID do novoFuncionario seja o do existente
             return funcionarioRepository.update(novoFuncionario);
         }
         return false;
@@ -51,9 +58,17 @@ public class FuncionarioService {
         return  funcionarioRepository.findAll();
     }
 
+    public Funcionario buscarPorId(int idEditar) {
+        return funcionarioRepository.findById(idEditar);
+    }
+
 
     private Setor setarTipoSetor(TipoSetor tipoSetor) {
+        // Se Setor for apenas um tipo e não precisar ser carregado do banco
         return new Setor(tipoSetor, new ArrayList<>());
+        // Se Setor for uma entidade do banco de dados e você precisar buscar por tipo,
+        // você precisaria de um SetorRepository aqui:
+        // return setorRepository.findByTipoSetor(tipoSetor);
     }
 
     private Setor definirSetorPorCargo(Cargo cargo) {
@@ -67,16 +82,22 @@ public class FuncionarioService {
             case VENDEDOR: tipoSetor = TipoSetor.VENDAS; break;
             case ALMOXARIFE: tipoSetor = TipoSetor.ALMOXARIFADO; break;
             case MOTORISTA: tipoSetor = TipoSetor.TRANSPORTADORAS; break;
-            default: throw new IllegalArgumentException("Cargo inválido");
+            default: throw new IllegalArgumentException("Cargo inválido: " + cargo);
         }
 
+        // Retorna um novo objeto Setor. Se a classe Setor for uma entidade do banco,
+        // talvez você precise carregar um Setor existente ou ter uma lógica de persistência para ele.
         return setarTipoSetor(tipoSetor);
     }
 
-    private Beneficios calcularBeneficiosPorCargo(Cargo cargo) {
-        double valeRefeicao = 300, valeAlimentacao = 300, planoSaude = 3000, planoOdonto = 3000;
+    // Este método agora recebe um objeto Funcionario e atribui os benefícios diretamente a ele
+    private void calcularEAtribuirBeneficiosPorCargo(Funcionario funcionario) {
+        double valeRefeicao = 300;
+        double valeAlimentacao = 300;
+        double planoSaude = 3000;
+        double planoOdonto = 3000;
 
-        switch (cargo) {
+        switch (funcionario.getCargo()) {
             case GERENTE:
                 valeRefeicao *= 2;
                 valeAlimentacao *= 2;
@@ -96,13 +117,14 @@ public class FuncionarioService {
                 valeAlimentacao *= 1.2;
                 break;
             case ATENDENTE:
+                // Não há modificadores específicos para atendente aqui
                 break;
         }
 
-        return new Beneficios(valeRefeicao, valeAlimentacao, planoSaude, planoOdonto);
-    }
-
-    public Funcionario buscarPorId(int idEditar) {
-        return funcionarioRepository.findById(idEditar);
+        // Atribuir os valores calculados diretamente ao objeto Funcionario
+        funcionario.setValeRefeicao(valeRefeicao);
+        funcionario.setValeAlimentacao(valeAlimentacao);
+        funcionario.setPlanoSaude(planoSaude);
+        funcionario.setPlanoOdonto(planoOdonto);
     }
 }
