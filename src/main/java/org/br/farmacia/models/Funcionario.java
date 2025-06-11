@@ -4,6 +4,8 @@ import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.Genero;
 
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.Period;
 
 public class Funcionario {
 
@@ -13,9 +15,7 @@ public class Funcionario {
     private Genero genero;
     private Cargo cargo;
     private double salario;
-    private Setor setor; // Mantemos Setor como um objeto separado, se for mais complexo
-
-    // Atributos de Beneficios movidos para Funcionario
+    private Setor setor;
     private double valeRefeicao;
     private double valeAlimentacao;
     private double planoSaude;
@@ -33,25 +33,22 @@ public class Funcionario {
         this.genero = genero;
         this.cargo = cargo;
         this.salario = salario;
-        // Inicializa os benefícios com valores padrão (ou pode ser via outro construtor ou setters)
         this.valeRefeicao = 0.0;
         this.valeAlimentacao = 0.0;
         this.planoSaude = 0.0;
         this.planoOdonto = 0.0;
     }
 
-    // Construtor adicional para incluir benefícios diretamente
     public Funcionario(String nome, int id, Date dataNascimento, Genero genero,
                        Cargo cargo, double salario, double valeRefeicao,
                        double valeAlimentacao, double planoSaude, double planoOdonto) {
-        this(nome, id, dataNascimento, genero, cargo, salario); // Chama o construtor principal
+        this(nome, id, dataNascimento, genero, cargo, salario);
         this.valeRefeicao = valeRefeicao;
         this.valeAlimentacao = valeAlimentacao;
         this.planoSaude = planoSaude;
         this.planoOdonto = planoOdonto;
     }
 
-    // Getters e Setters para os atributos existentes de Funcionario
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 
@@ -60,6 +57,16 @@ public class Funcionario {
 
     public Date getDataNascimento() { return dataNascimento; }
     public void setIdade(Date dataNascimento) { this.dataNascimento = dataNascimento; }
+
+    public void setDataNascimento(Date dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
+    public int getIdade() {
+        LocalDate nascimento = dataNascimento.toLocalDate();
+        return Period.between(nascimento, LocalDate.now()).getYears();
+    }
+
 
     public Genero getGenero() { return genero; }
     public void setGenero(Genero genero) { this.genero = genero; }
@@ -73,7 +80,6 @@ public class Funcionario {
     public Setor getSetor() { return setor; }
     public void setSetor(Setor setor) { this.setor = setor; }
 
-    // Getters e Setters para os novos atributos de Beneficios
     public double getValeRefeicao() {
         return valeRefeicao;
     }
