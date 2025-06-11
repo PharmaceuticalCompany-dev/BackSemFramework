@@ -3,11 +3,13 @@ package org.br.farmacia.models;
 import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.Genero;
 
+import java.sql.Date;
+
 public class Funcionario {
 
     private String nome;
     private int id;
-    private int idade;
+    private Date dataNascimento;
     private Genero genero;
     private Cargo cargo;
     private double salario;
@@ -19,15 +21,15 @@ public class Funcionario {
     private double planoSaude;
     private double planoOdonto;
 
-    public Funcionario(String nome, int id, int idade, Genero genero,
+    public Funcionario(String nome,int id , Date dataNascimento , Genero genero,
                        Cargo cargo, double salario) {
 
-        if (idade < 0) throw new IllegalArgumentException("Idade inválida");
+        if (dataNascimento == null) throw new IllegalArgumentException("Idade inválida");
         if (salario <= 0) throw new IllegalArgumentException("Salário deve ser maior que zero");
 
         this.nome = nome;
         this.id = id;
-        this.idade = idade;
+        this.dataNascimento = dataNascimento;
         this.genero = genero;
         this.cargo = cargo;
         this.salario = salario;
@@ -39,10 +41,10 @@ public class Funcionario {
     }
 
     // Construtor adicional para incluir benefícios diretamente
-    public Funcionario(String nome, int id, int idade, Genero genero,
+    public Funcionario(String nome, int id, Date dataNascimento, Genero genero,
                        Cargo cargo, double salario, double valeRefeicao,
                        double valeAlimentacao, double planoSaude, double planoOdonto) {
-        this(nome, id, idade, genero, cargo, salario); // Chama o construtor principal
+        this(nome, id, dataNascimento, genero, cargo, salario); // Chama o construtor principal
         this.valeRefeicao = valeRefeicao;
         this.valeAlimentacao = valeAlimentacao;
         this.planoSaude = planoSaude;
@@ -56,8 +58,8 @@ public class Funcionario {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public int getIdade() { return idade; }
-    public void setIdade(int idade) { this.idade = idade; }
+    public Date getDataNascimento() { return dataNascimento; }
+    public void setIdade(Date dataNascimento) { this.dataNascimento = dataNascimento; }
 
     public Genero getGenero() { return genero; }
     public void setGenero(Genero genero) { this.genero = genero; }
@@ -109,7 +111,7 @@ public class Funcionario {
         return "Funcionario{" +
                 "nome='" + nome + '\'' +
                 ", id=" + id +
-                ", idade=" + idade +
+                ", idade=" + dataNascimento +
                 ", genero=" + genero +
                 ", cargo=" + cargo +
                 ", setor=" + (setor != null ? setor.getTipoSetor() : "Nenhum") +

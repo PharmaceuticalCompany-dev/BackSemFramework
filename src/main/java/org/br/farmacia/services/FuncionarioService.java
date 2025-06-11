@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.TipoSetor;
-import org.br.farmacia.models.Beneficios;
 import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.models.Setor;
 import org.br.farmacia.repositories.FuncionarioRepository;

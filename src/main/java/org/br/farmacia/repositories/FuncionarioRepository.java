@@ -20,7 +20,7 @@ public class FuncionarioRepository {
 
     public Funcionario findById(int id) {
         // Incluindo os campos de benefícios na seleção
-        String sql = "SELECT id, nome, idade, genero, cargo, salario, " +
+        String sql = "SELECT id, nome, dataNascimento, genero, cargo, salario, " +
                 "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, id_setor " +
                 "FROM funcionario WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -38,7 +38,7 @@ public class FuncionarioRepository {
     public List<Funcionario> findBySetorId(int setorId) {
         List<Funcionario> lista = new ArrayList<>();
         // Incluindo os campos de benefícios na seleção
-        String sql = "SELECT id, nome, idade, genero, cargo, salario, " +
+        String sql = "SELECT id, nome, dataNascimento, genero, cargo, salario, " +
                 "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, id_setor " +
                 "FROM funcionario WHERE id_setor = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -56,7 +56,7 @@ public class FuncionarioRepository {
     public List<Funcionario> findAll() {
         List<Funcionario> lista = new ArrayList<>();
         // Incluindo os campos de benefícios na seleção
-        String sql = "SELECT id, nome, idade, genero, cargo, salario, " +
+        String sql = "SELECT id, nome, dataNascimento, genero, cargo, salario, " +
                 "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, id_setor " +
                 "FROM funcionario";
         try (Statement stmt = connection.createStatement()) {
@@ -72,12 +72,12 @@ public class FuncionarioRepository {
 
     public boolean save(Funcionario funcionario) {
         // Adicionando os novos campos de benefícios na query INSERT
-        String sql = "INSERT INTO funcionario (nome, idade, genero, cargo, salario, " +
+        String sql = "INSERT INTO funcionario (nome, dataNascimento, genero, cargo, salario, " +
                 "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, id_setor) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, funcionario.getNome());
-            ps.setInt(2, funcionario.getIdade());
+            ps.setDate(2, funcionario.getDataNascimento());
             ps.setString(3, funcionario.getGenero().name());
             ps.setString(4, funcionario.getCargo().name());
             ps.setDouble(5, funcionario.getSalario());
@@ -117,7 +117,7 @@ public class FuncionarioRepository {
                 "WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, funcionario.getNome());
-            ps.setInt(2, funcionario.getIdade());
+            ps.setDate(2, funcionario.getDataNascimento());
             ps.setString(3, funcionario.getGenero().name());
             ps.setString(4, funcionario.getCargo().name());
             ps.setDouble(5, funcionario.getSalario());
@@ -157,7 +157,7 @@ public class FuncionarioRepository {
     private Funcionario mapResultSetToFuncionario(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String nome = rs.getString("nome");
-        int idade = rs.getInt("idade");
+        Date dataNascimento = rs.getDate("dataNascimento");
         Genero genero = Genero.valueOf(rs.getString("genero").toUpperCase());
         Cargo cargo = Cargo.valueOf(rs.getString("cargo").toUpperCase());
         double salario = rs.getDouble("salario");
@@ -168,7 +168,7 @@ public class FuncionarioRepository {
         double planoOdonto = rs.getDouble("plano_odonto");
 
         // Criando o objeto Funcionario usando o construtor que inclui os benefícios
-        Funcionario funcionario = new Funcionario(nome, id, idade, genero, cargo,
+        Funcionario funcionario = new Funcionario(nome, id, dataNascimento, genero, cargo,
                 salario, valeRefeicao, valeAlimentacao,
                 planoSaude, planoOdonto);
 
