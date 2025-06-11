@@ -5,26 +5,29 @@ import org.br.farmacia.enums.Genero;
 import org.br.farmacia.models.Beneficios;
 import org.br.farmacia.models.Setor;
 
+
+import java.sql.Date;
+
 public class Funcionario {
 
     private String nome;
     private int id;
-    private int idade;
+    private java.sql.Date dataNascimento;
     private Genero genero;
     private Cargo cargo;
     private double salario;
     private Beneficios beneficios;
     private Setor setor;
 
-    public Funcionario(String nome, int id, int idade, Genero genero,
+    public Funcionario(String nome, int id, java.sql.Date dataNascimento, Genero genero,
                        Cargo cargo, double salario) {
 
-        if (idade < 0) throw new IllegalArgumentException("Idade inválida");
+        if (dataNascimento == null) throw new IllegalArgumentException("Data inválida");
         if (salario <= 0) throw new IllegalArgumentException("Salário deve ser maior que zero");
 
         this.nome = nome;
         this.id = id;
-        this.idade = idade;
+        this.dataNascimento = dataNascimento;
         this.genero = genero;
         this.cargo = cargo;
         this.salario = salario;
@@ -37,8 +40,8 @@ public class Funcionario {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public int getIdade() { return idade; }
-    public void setIdade(int idade) { this.idade = idade; }
+    public java.sql.Date getDataNascimento() { return dataNascimento; }
+    public void setDataNascimento(Date dataNascimento) { this.dataNascimento = dataNascimento; }
 
     public Genero getGenero() { return genero; }
     public void setGenero(Genero genero) { this.genero = genero; }
@@ -60,7 +63,7 @@ public class Funcionario {
         return "Funcionario{" +
                 "nome='" + nome + '\'' +
                 ", id=" + id +
-                ", idade=" + idade +
+                ", dataNascimento=" + dataNascimento +
                 ", genero=" + genero +
                 ", cargo=" + cargo +
                 ", setor=" + (setor != null ? setor.getTipoSetor() : "Nenhum") +

@@ -14,6 +14,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Date;
 import java.util.List;
 
 //WebServlet é uma anotação para mapear a classe a uma URL específica.
@@ -66,7 +67,7 @@ public class FuncionarioController extends HttpServlet {
             Funcionario novoFuncionario = new Funcionario(
                     input.nome,
                     input.id,
-                    input.idade,
+                    input.dataNascimento,
                     Genero.valueOf(input.genero.toUpperCase()),
                     Cargo.valueOf(input.cargo.toUpperCase()),
                     input.salario
@@ -91,7 +92,7 @@ public class FuncionarioController extends HttpServlet {
     private static class FuncionarioInput {
         int id;
         String nome;
-        int idade;
+        Date dataNascimento;
         String genero;
         String cargo;
         double salario;

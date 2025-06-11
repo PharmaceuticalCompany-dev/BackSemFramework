@@ -68,10 +68,10 @@ public class FuncionarioRepository {
     }
 
     public boolean save(Funcionario funcionario) {
-        String sql = "INSERT INTO funcionario (nome, idade, genero, cargo, salario) VALUES (?, ?, ?, ?, ?)\n";
+        String sql = "INSERT INTO funcionario (nome, dataNascimento, genero, cargo, salario) VALUES (?, ?, ?, ?, ?)\n";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, funcionario.getNome());
-            ps.setInt(2, funcionario.getIdade());
+            ps.setDate(2, funcionario.getDataNascimento());
             ps.setString(3, funcionario.getGenero().name());
             ps.setString(4, funcionario.getCargo().name());
             ps.setDouble(5, funcionario.getSalario());
@@ -86,10 +86,10 @@ public class FuncionarioRepository {
     }
 
     public boolean update(Funcionario funcionario) {
-        String sql = "UPDATE funcionario SET nome = ?, idade = ?, genero = ?, cargo = ?, salario = ? WHERE id = ?";
+        String sql = "UPDATE funcionario SET nome = ?, dataNascimento = ?, genero = ?, cargo = ?, salario = ? WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, funcionario.getNome());
-            ps.setInt(2, funcionario.getIdade());
+            ps.setDate(2, funcionario.getDataNascimento());
             ps.setString(3, funcionario.getGenero().name());
             ps.setString(4, funcionario.getCargo().name());
             ps.setDouble(5, funcionario.getSalario());
@@ -117,11 +117,11 @@ public class FuncionarioRepository {
     private Funcionario mapResultSetToFuncionario(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String nome = rs.getString("nome");
-        int idade = rs.getInt("idade");
+        Date dataNascimento = rs.getDate("dataNascimento");
         Genero genero = Genero.valueOf(rs.getString("genero").toUpperCase());
         Cargo cargo = Cargo.valueOf(rs.getString("cargo").toUpperCase());
         double salario = rs.getDouble("salario");
 
-        return new Funcionario(nome, id, idade, genero, cargo, salario);
+        return new Funcionario(nome, id, dataNascimento, genero, cargo, salario);
     }
 }
