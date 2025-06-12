@@ -19,12 +19,10 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// A anotação foi alterada para /caixa/* para permitir rotas como /caixa/total
 @WebServlet("/caixa/*")
 public class CaixaController extends HttpServlet {
 
     private CaixaServices caixaServices;
-    // Gson configurado para lidar com o tipo LocalDateTime do Java 8
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
@@ -48,11 +46,6 @@ public class CaixaController extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 
-    /**
-     * Roteia as requisições GET.
-     * - GET /caixa?empresaId=1 : Lista todas as transações da empresa.
-     * - GET /caixa/total?empresaId=1 : Retorna o saldo total do caixa da empresa.
-     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setCorsHeaders(resp);
@@ -70,14 +63,12 @@ public class CaixaController extends HttpServlet {
             }
             int empresaId = Integer.parseInt(empresaIdStr);
 
-            // Rota para buscar o saldo total
             if (pathInfo != null && pathInfo.equals("/total")) {
                 double total = caixaServices.getCaixaTotal(empresaId);
                 JsonObject result = new JsonObject();
                 result.addProperty("totalCaixa", total);
                 out.println(gson.toJson(result));
             }
-            // Rota padrão para listar transações
             else {
                 List<Caixa> transacoes = caixaServices.listarTransacoes(empresaId);
                 out.println(gson.toJson(transacoes));
@@ -94,12 +85,6 @@ public class CaixaController extends HttpServlet {
         out.flush();
     }
 
-    /**
-     * Roteia as requisições POST.
-     * - POST /caixa : Registra uma nova transação (entrada ou saída).
-     * - POST /caixa/pagar-salarios : Registra a saída de pagamento de salários.
-     * - POST /caixa/inicializar : Define o valor inicial do caixa da empresa.
-     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setCorsHeaders(resp);
@@ -109,15 +94,12 @@ public class CaixaController extends HttpServlet {
         String pathInfo = req.getPathInfo();
 
         try {
-            // Rota para registrar pagamento de salários
             if (pathInfo != null && pathInfo.equals("/pagar-salarios")) {
                 handlePagarSalarios(req, resp, out);
             }
-            // Rota para inicializar o caixa
             else if (pathInfo != null && pathInfo.equals("/inicializar")) {
                 handleInicializarCaixa(req, resp, out);
             }
-            // Rota padrão para registrar uma transação genérica
             else {
                 handleRegistrarTransacao(req, resp, out);
             }
@@ -172,9 +154,6 @@ public class CaixaController extends HttpServlet {
         result.addProperty("message", "Caixa da empresa " + input.empresaId + " inicializado com sucesso.");
         out.println(gson.toJson(result));
     }
-
-
-    // --- Classes Internas para mapear o JSON de entrada (Input DTOs) ---
 
     private static class TransacaoInput {
         TipoTransacao tipo;

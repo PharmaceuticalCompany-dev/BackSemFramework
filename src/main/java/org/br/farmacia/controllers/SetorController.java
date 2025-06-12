@@ -2,39 +2,34 @@ package org.br.farmacia.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.br.farmacia.enums.TipoSetor; // Assuming you have this enum
+import org.br.farmacia.enums.TipoSetor;
 import org.br.farmacia.models.Setor;
 import org.br.farmacia.services.SetorService;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/setores")
 public class SetorController extends HttpServlet {
-
     private SetorService setorService;
     private Gson gson = new Gson();
 
     @Override
     public void init() throws ServletException {
-        ServletContext context = getServletContext();
-        setorService = new SetorService(context);
+        setorService = new SetorService(getServletContext());
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
-
         String idParam = req.getParameter("id");
+
         if (idParam != null) {
             try {
                 int id = Integer.parseInt(idParam);
@@ -42,16 +37,12 @@ public class SetorController extends HttpServlet {
                 if (setor != null) {
                     out.println(gson.toJson(setor));
                 } else {
-                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    JsonObject error = new JsonObject();
-                    error.addProperty("error", "Setor not found");
-                    out.println(gson.toJson(error));
+                    resp.setStatus(404);
+                    out.println(gson.toJson(errorJson("Setor nao encontrado")));
                 }
             } catch (NumberFormatException e) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                JsonObject error = new JsonObject();
-                error.addProperty("error", "Invalid ID format");
-                out.println(gson.toJson(error));
+                resp.setStatus(400);
+                out.println(gson.toJson(errorJson("ID invalido")));
             }
         } else {
             List<Setor> setores = setorService.listarSetores();
@@ -60,119 +51,9 @@ public class SetorController extends HttpServlet {
         out.flush();
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-
-        try {
-            SetorInput input = gson.fromJson(req.getReader(), SetorInput.class);
-
-            Setor novoSetor = new Setor(
-                    input.id,
-                    TipoSetor.valueOf(input.tipoSetor.toUpperCase()),
-                    new ArrayList<>()
-            );
-
-            setorService.adicionarSetor(novoSetor);
-
-            JsonObject json = new JsonObject();
-            json.addProperty("message", "Setor adicionado com sucesso");
-            out.println(gson.toJson(json));
-        } catch (IllegalArgumentException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Erro ao adicionar setor: " + e.getMessage());
-            out.println(gson.toJson(error));
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Erro ao adicionar setor: " + e.getMessage());
-            out.println(gson.toJson(error));
-        }
-
-        out.flush();
-    }
-
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-
-        try {
-            SetorInput input = gson.fromJson(req.getReader(), SetorInput.class);
-            int id = input.id;
-
-            Setor setorAtualizado = new Setor(
-                    id,
-                    TipoSetor.valueOf(input.tipoSetor.toUpperCase()),
-                    new ArrayList<>()
-            );
-
-            if (setorService.editarSetor(id, setorAtualizado)) {
-                JsonObject json = new JsonObject();
-                json.addProperty("message", "Setor atualizado com sucesso");
-                out.println(gson.toJson(json));
-            } else {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                JsonObject error = new JsonObject();
-                error.addProperty("error", "Setor não encontrado ou falha na atualização");
-                out.println(gson.toJson(error));
-            }
-
-        } catch (IllegalArgumentException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Erro ao atualizar setor: " + e.getMessage());
-            out.println(gson.toJson(error));
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Erro ao atualizar setor: " + e.getMessage());
-            out.println(gson.toJson(error));
-        }
-        out.flush();
-    }
-
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-
-        String idParam = req.getParameter("id");
-        if (idParam == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "ID do setor é necessário para exclusão.");
-            out.println(gson.toJson(error));
-            out.flush();
-            return;
-        }
-
-        try {
-            int id = Integer.parseInt(idParam);
-            setorService.removerSetor(id);
-            JsonObject json = new JsonObject();
-            json.addProperty("message", "Setor removido com sucesso");
-            out.println(gson.toJson(json));
-        } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Formato de ID inválido.");
-            out.println(gson.toJson(error));
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Erro ao remover setor: " + e.getMessage());
-            out.println(gson.toJson(error));
-        }
-        out.flush();
-    }
-
-    private static class SetorInput {
-        int id; // For updates and specific fetches
-        String tipoSetor;
-        // You might not include a list of Funcionarios in the input for simplicity,
-        // or handle it in a separate endpoint if relationships are complex.
+    private JsonObject errorJson(String msg) {
+        JsonObject json = new JsonObject();
+        json.addProperty("error", msg);
+        return json;
     }
 }

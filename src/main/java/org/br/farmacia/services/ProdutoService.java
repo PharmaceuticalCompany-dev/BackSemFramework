@@ -1,5 +1,6 @@
 package org.br.farmacia.services;
 
+import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.models.Produto;
 import org.br.farmacia.repositories.ProdutoRepository;
 
@@ -25,9 +26,11 @@ public class ProdutoService {
         return produtoRepository.delete(id);
     }
 
-    public boolean editarProduto(Produto produtoAtualizado) {
-        if (produtoAtualizado != null) {
-            return produtoRepository.update(produtoAtualizado);
+    public boolean editarProduto(int id, Produto novoProduto) {
+        Produto existente = produtoRepository.findById(id);
+        if (existente != null) {
+            novoProduto.setId(id);
+            return produtoRepository.update(novoProduto);
         }
         return false;
     }

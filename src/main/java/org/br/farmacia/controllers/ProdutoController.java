@@ -49,38 +49,40 @@ public class ProdutoController extends HttpServlet {
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
-        try {
-            ProdutoInput input = gson.fromJson(req.getReader(), ProdutoInput.class);
+        ProdutoInput input = gson.fromJson(req.getReader(), ProdutoInput.class);
+        Produto novoProduto = new Produto(input.nome, input.precoCompra, input.precoVenda, input.quantidadeEstoque);
+        produtoService.adicionarProduto(novoProduto);
 
-            Produto novoProduto = new Produto(
-                    input.nome,
-                    input.precoCompra,
-                    input.precoVenda,
-                    input.quantidadeEstoque
-            );
-
-            boolean sucesso = produtoService.adicionarProduto(novoProduto);
-
-            JsonObject json = new JsonObject();
-            if (sucesso) {
-                json.addProperty("message", "Produto adicionado com sucesso");
-            } else {
-                json.addProperty("message", "Falha ao adicionar produto");
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-
-            out.println(gson.toJson(json));
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Erro ao adicionar produto: " + e.getMessage());
-            out.println(gson.toJson(error));
-        }
-
+        out.println(gson.toJson("Produto cadastrado com sucesso!"));
         out.flush();
     }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
+        ProdutoInput input = gson.fromJson(req.getReader(), ProdutoInput.class);
+        Produto produto = new Produto(input.id, input.nome, input.precoCompra, input.precoVenda, input.quantidadeEstoque);
+        produtoService.editarProduto(input.id, produto);
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
+        int id = Integer.parseInt(req.getParameter("id"));
+        produtoService.removerProduto(id);
+
+        out.println(gson.toJson("Produto removido com sucesso!"));
+        out.flush();
+    }
+
+
     private static class ProdutoInput {
+        int id;
         String nome;
         double precoCompra;
         double precoVenda;
