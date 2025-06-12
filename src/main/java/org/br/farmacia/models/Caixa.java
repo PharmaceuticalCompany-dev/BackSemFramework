@@ -1,18 +1,35 @@
 package org.br.farmacia.models;
 
-public class Caixa {
-    private int id; // Adicionando um ID para persistência no banco de dados
-    private double valorTotal;
+import org.br.farmacia.enums.TipoTransacao;
+import java.time.LocalDateTime;
 
-    // Construtor para criação de um novo Caixa (sem ID, que será gerado pelo DB)
-    public Caixa(double valorTotal) {
-        this.valorTotal = valorTotal;
+public class Caixa {
+
+    private int id;
+    private TipoTransacao tipo;
+    private double valor;
+    private LocalDateTime data;
+    private String descricao;
+    private int empresaId;
+
+    public Caixa() {
     }
 
-    // Construtor para carregar um Caixa do banco de dados (com ID)
-    public Caixa(int id, double valorTotal) {
+    public Caixa(int id, TipoTransacao tipo, double valor, LocalDateTime data, String descricao, int empresaId) {
         this.id = id;
-        this.valorTotal = valorTotal;
+        this.tipo = tipo;
+        this.valor = valor;
+        this.data = data;
+        this.descricao = descricao;
+        this.empresaId = empresaId;
+    }
+
+    public Caixa(TipoTransacao tipo, double valor, LocalDateTime data, String descricao, int empresaId) {
+        this.tipo = tipo;
+        this.valor = valor;
+        this.data = data;
+        this.descricao = descricao;
+        this.empresaId = empresaId;
     }
 
     public int getId() {
@@ -23,25 +40,55 @@ public class Caixa {
         this.id = id;
     }
 
-    public double getValorTotal() {
-        return valorTotal;
+    public TipoTransacao getTipo() {
+        return tipo;
     }
 
-    public void setValorTotal(double valorTotal) {
-        this.valorTotal = valorTotal;
+    public void setTipo(TipoTransacao tipo) {
+        this.tipo = tipo;
     }
 
-    public void adicionarFundos(double valor) {
-        if (valor > 0) {
-            this.valorTotal += valor;
-        }
+    public double getValor() {
+        return valor;
     }
 
-    public boolean removerFundos(double valor) {
-        if (valor > 0 && this.valorTotal >= valor) {
-            this.valorTotal -= valor;
-            return true;
-        }
-        return false;
+    public void setValor(double valor) {
+        this.valor = valor;
+    }
+
+    public LocalDateTime getData() {
+        return data;
+    }
+
+    public void setData(LocalDateTime data) {
+        this.data = data;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public int getEmpresaId() {
+        return empresaId;
+    }
+
+    public void setEmpresaId(int empresaId) {
+        this.empresaId = empresaId;
+    }
+
+    @Override
+    public String toString() {
+        return "Caixa{" +
+                "id=" + id +
+                ", tipo=" + tipo +
+                ", valor=" + valor +
+                ", data=" + data +
+                ", descricao='" + descricao + '\'' +
+                ", empresaId=" + empresaId +
+                '}';
     }
 }

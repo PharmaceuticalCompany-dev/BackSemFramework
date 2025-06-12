@@ -19,7 +19,7 @@ public class FuncionarioService {
 
     public FuncionarioService(ServletContext context) {
         this.funcionarioRepository = new FuncionarioRepository(context);
-        // this.setorRepository = new SetorRepository(context); // Se precisar
+        // this.setorRepository = new SetorRepository(context);
     }
 
     public void inicializarFuncionario(Funcionario funcionario) {

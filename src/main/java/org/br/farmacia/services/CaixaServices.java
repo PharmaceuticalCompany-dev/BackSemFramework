@@ -1,64 +1,116 @@
 package org.br.farmacia.services;
 
+import org.br.farmacia.enums.TipoTransacao;
 import org.br.farmacia.models.Caixa;
+import org.br.farmacia.models.Empresa;
+import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.repositories.CaixaRepository;
+import org.br.farmacia.repositories.EmpresaRepository;
+import org.br.farmacia.repositories.FuncionarioRepository;
+
 import javax.servlet.ServletContext;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CaixaServices {
 
     private final CaixaRepository caixaRepository;
+    private final EmpresaRepository empresaRepository;
+    private final FuncionarioRepository funcionarioRepository;
 
     public CaixaServices(ServletContext context) {
         this.caixaRepository = new CaixaRepository(context);
+        this.empresaRepository = new EmpresaRepository(context);
+        this.funcionarioRepository = new FuncionarioRepository(context);
     }
 
-    public boolean adicionarCaixa(Caixa caixa) {
-        if (caixa != null) {
-            // Pode adicionar validações ou regras de negócio aqui antes de salvar
-            return caixaRepository.save(caixa);
+    public Caixa registrarTransacao(TipoTransacao tipo, double valor, String descricao, int empresaId) {
+        if (valor <= 0) {
+            throw new IllegalArgumentException("O valor da transação deve ser positivo.");
         }
-        return false;
-    }
 
-    public void removerCaixa(int id) {
-        caixaRepository.delete(id);
-    }
-
-    public boolean editarCaixa(int id, Caixa novoCaixa) {
-        Caixa existente = caixaRepository.findById(id);
-        if (existente != null) {
-            novoCaixa.setId(id); // Garante que o ID esteja setado para a atualização
-            return caixaRepository.update(novoCaixa);
+        Empresa empresa = empresaRepository.findById(empresaId);
+        if (empresa == null) {
+            throw new IllegalArgumentException("Empresa não encontrada com ID: " + empresaId);
         }
-        return false;
-    }
 
-    public List<Caixa> listarCaixas() {
-        return caixaRepository.findAll();
-    }
+        Caixa novaTransacao = new Caixa(tipo, valor, LocalDateTime.now(), descricao, empresaId);
+        boolean sucesso = caixaRepository.save(novaTransacao);
 
-    public Caixa buscarPorId(int id) {
-        return caixaRepository.findById(id);
-    }
-
-    // Métodos para operações de caixa (ex: registrar transações)
-    public boolean registrarMovimentacaoEntrada(int caixaId, double valor) {
-        Caixa caixa = caixaRepository.findById(caixaId);
-        if (caixa != null) {
-            caixa.adicionarFundos(valor); // Se for uma entrada
-            // ou caixa.removerFundos(valor); se for uma saída, com validação de saldo
-            return caixaRepository.update(caixa);
+        if (sucesso) {
+            if (tipo == TipoTransacao.ENTRADA) {
+                empresa.setCaixaTotal(empresa.getCaixaTotal() + valor);
+            } else {
+                if (empresa.getCaixaTotal() < valor) {
+                    System.err.println("Atenção: Saldo insuficiente para realizar a saída de caixa. Saldo atual: " + empresa.getCaixaTotal() + ", Valor da saída: " + valor);
+                }
+                empresa.setCaixaTotal(empresa.getCaixaTotal() - valor);
+            }
+            empresaRepository.update(empresa);
+            return novaTransacao;
         }
-        return false;
+        return null;
     }
 
-    public boolean registrarMovimentacaoSaida(int caixaId, double valor) {
-        Caixa caixa = caixaRepository.findById(caixaId);
-        if (caixa != null) {
-            caixa.removerFundos(valor);
-            return caixaRepository.update(caixa);
+    public double getCaixaTotal(int empresaId) {
+        Empresa empresa = empresaRepository.findById(empresaId);
+        if (empresa != null) {
+            return empresa.getCaixaTotal();
         }
-        return false;
+        return 0.0;
+    }
+
+    public List<Caixa> listarTransacoes(int empresaId) {
+        return caixaRepository.findByEmpresaId(empresaId);
+    }
+
+
+    public void inicializarCaixaEmpresa(int empresaId, double valorInicial) {
+        Empresa empresa = empresaRepository.findById(empresaId);
+        if (empresa == null) {
+            throw new IllegalArgumentException("Empresa não encontrada para inicializar o caixa.");
+        }
+        empresa.setCaixaTotal(valorInicial);
+        empresaRepository.update(empresa);
+    }
+
+
+    public Caixa registrarPagamentoSalarios(int empresaId) {
+        List<Funcionario> funcionarios = funcionarioRepository.findAll();
+        double totalSalarios = 0;
+        for (Funcionario f : funcionarios) {
+            totalSalarios += f.getSalarioLiquido();
+            totalSalarios += f.getValeRefeicao();
+            totalSalarios += f.getValeAlimentacao();
+            totalSalarios += f.getPlanoSaude();
+            totalSalarios += f.getPlanoOdonto();
+        }
+
+        if (totalSalarios > 0) {
+            return registrarTransacao(TipoTransacao.SAIDA, totalSalarios, "Pagamento de salários e benefícios", empresaId);
+        }
+        return null;
+    }
+
+    public Caixa registrarCompraDeProdutos(int empresaId, double valorCompra, String descricao) {
+        if (valorCompra <= 0) {
+            throw new IllegalArgumentException("O valor da compra deve ser positivo.");
+        }
+        return registrarTransacao(TipoTransacao.SAIDA, valorCompra, descricao, empresaId);
+    }
+
+    public Caixa registrarVendaDeProdutos(int empresaId, double valorVenda, String descricao) {
+        if (valorVenda <= 0) {
+            throw new IllegalArgumentException("O valor da venda deve ser positivo.");
+        }
+        return registrarTransacao(TipoTransacao.ENTRADA, valorVenda, descricao, empresaId);
+    }
+
+    public double calcularEstimativaLucroMensal(int empresaId) {
+        return 0.0;
+    }
+
+    public double calcularEstimativaLucroAnual(int empresaId) {
+        return 0.0;
     }
 }

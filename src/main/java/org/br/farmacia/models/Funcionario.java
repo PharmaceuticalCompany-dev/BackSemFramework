@@ -16,7 +16,7 @@ public class Funcionario {
     private double planoOdonto;
     private double percentualIrrf;
     private double percentualInss;
-    private double bonificacao; // Added bonificacao
+    private double bonificacao;
     private int setorId;
     private Setor setor;
 
