@@ -37,11 +37,4 @@ public class EmpresaController extends HttpServlet {
 
         out.flush();
     }
-
-    private static class ProdutoVendaInput {
-        int ano;
-        int mes;
-        int produtoId;
-        int quantidade;
-    }
 }

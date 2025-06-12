@@ -67,7 +67,7 @@ public class FuncionarioController extends HttpServlet {
                     input.planoOdonto,
                     input.percentualIrrf,
                     input.percentualInss,
-                    input.bonificacao // Pass bonificacao from input
+                    input.bonificacao
             );
 
             funcionarioService.adicionarFuncionario(novoFuncionario);
@@ -202,6 +202,6 @@ public class FuncionarioController extends HttpServlet {
         double planoOdonto;
         double percentualIrrf;
         double percentualInss;
-        double bonificacao; // Added bonificacao to input
+        double bonificacao;
     }
 }

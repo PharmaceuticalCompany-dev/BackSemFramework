@@ -36,11 +36,8 @@ public class ProdutoController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setCorsHeaders(resp);
         resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-
         List<Produto> produtos = produtoService.listarProdutos();
-        out.println(gson.toJson(produtos));
-        out.flush();
+        resp.getWriter().println(gson.toJson(produtos));
     }
 
     @Override
