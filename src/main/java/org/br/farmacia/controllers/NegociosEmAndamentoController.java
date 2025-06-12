@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet("/negocios")
@@ -21,8 +22,16 @@ public class NegociosEmAndamentoController extends HttpServlet {
         service = new NegociosEmAndamentoService(getServletContext());
     }
 
+    private void setCorsHeaders(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        resp.setHeader("Access-Control-Max-Age", "3600");
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         List<NegociosEmAndamento> lista = service.getAll();
         resp.getWriter().println(gson.toJson(lista));
@@ -30,58 +39,44 @@ public class NegociosEmAndamentoController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         NegocioInput input = gson.fromJson(req.getReader(), NegocioInput.class);
+        PrintWriter out = resp.getWriter();
 
         NegociosEmAndamento negocio = new NegociosEmAndamento();
         negocio.setTipo(input.tipo);
         negocio.setStatus(input.status);
+        service.adicionarNegocio(negocio);
 
-        boolean sucesso = service.create(negocio);
-        resp.setStatus(sucesso ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
-        if (sucesso) {
-            resp.getWriter().println("{\"id\":" + negocio.getId() + "}");
-        }
+        out.println(gson.toJson("Produto cadastrado com sucesso!"));
+        out.flush();
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
         NegocioInput input = gson.fromJson(req.getReader(), NegocioInput.class);
-
-        if (input.id == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        NegociosEmAndamento negocio = new NegociosEmAndamento();
-        negocio.setId(input.id);
-        negocio.setTipo(input.tipo);
-        negocio.setStatus(input.status);
-
-        boolean sucesso = service.update(negocio);
-        resp.setStatus(sucesso ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        NegociosEmAndamento negocio = new NegociosEmAndamento(input.id, input.tipo, input.status);
+        service.update(input.id, negocio);
     }
+
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
-        String idParam = req.getParameter("id");
+        PrintWriter out = resp.getWriter();
 
-        if (idParam == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+        int id = Integer.parseInt(req.getParameter("id"));
+        service.delete(id);
 
-        try {
-            int id = Integer.parseInt(idParam);
-            boolean sucesso = service.delete(id);
-            resp.setStatus(sucesso ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        }
+        out.println(gson.toJson("Negócio removido com sucesso!"));
+        out.flush();
     }
+
 
     private static class NegocioInput {
         Integer id;

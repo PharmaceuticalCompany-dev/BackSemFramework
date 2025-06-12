@@ -22,11 +22,14 @@ public class NegociosEmAndamentoService {
         return repository.findAll();
     }
 
-    public boolean create(NegociosEmAndamento negocio) {
-        return repository.save(negocio);
+    public boolean adicionarNegocio(NegociosEmAndamento negocio) {
+        if(negocio != null) {
+            return repository.save(negocio);
+        }
+        return false;
     }
 
-    public boolean update(NegociosEmAndamento negocio) {
+    public boolean update(Integer id, NegociosEmAndamento negocio) {
         return repository.update(negocio);
     }
 

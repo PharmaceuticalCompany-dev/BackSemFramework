@@ -46,7 +46,6 @@ public class DatabaseInitializer implements ServletContextListener {
                 }
             }
 
-            // Checar se já existe empresa
             boolean empresaExiste = false;
             try (Statement stmt = connection.createStatement()) {
                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM EMPRESA");
@@ -55,7 +54,6 @@ public class DatabaseInitializer implements ServletContextListener {
                 }
             }
 
-            // Se não existir, inserir empresa padrão
             if (!empresaExiste) {
                 try (Statement stmt = connection.createStatement()) {
                     String insertSql = "INSERT INTO EMPRESA (NOME, CAIXA_TOTAL) VALUES ('Farmácia Nacional', 200000.00)";
@@ -64,7 +62,6 @@ public class DatabaseInitializer implements ServletContextListener {
                 }
             }
 
-            // Checar se já existem setores
             boolean setoresExistem = false;
             try (Statement stmt = connection.createStatement()) {
                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM SETOR");
@@ -73,7 +70,6 @@ public class DatabaseInitializer implements ServletContextListener {
                 }
             }
 
-            // Se não existir, inserir setores do enum
             if (!setoresExistem) {
                 try (Statement stmt = connection.createStatement()) {
                     for (TipoSetor setor : TipoSetor.values()) {
@@ -84,7 +80,29 @@ public class DatabaseInitializer implements ServletContextListener {
                 }
             }
 
+            boolean produtosExistem = false;
+            try (Statement stmt = connection.createStatement()) {
+                ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM PRODUTO");
+                if (rs.next()) {
+                    produtosExistem = rs.getInt(1) > 0;
+                }
+            }
+            if (!produtosExistem) {
+                try (Statement stmt = connection.createStatement()) {
+                    String insertSql = "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (1, 'Vitamina D', 20.00, 39.00, 100, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (2, 'Vitamina C', 15.00, 29.00, 200, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (3, 'Multivitamínico', 30.00, 59.00, 150, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (4, 'Creatina', 50.00, 90.00, 80, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (5, 'Ômega 3', 35.00, 75.00, 120, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (6, 'Proteína Whey', 120.00, 250.00, 50, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (7, 'BCAA', 40.00, 80.00, 200, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (8, 'ZMA', 25.00, 55.00, 130, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (9, 'Colágeno', 40.00, 85.00, 160, 1); " +
+                            "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (10, 'Vitamina B12', 10.00, 25.00, 300, 1);";
 
+                    stmt.executeUpdate(insertSql);
+                }
+            }
 
             ServletContext context = sce.getServletContext();
             context.setAttribute("DBConnection", connection);
