@@ -3,7 +3,7 @@ package org.br.farmacia.repositories;
 import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.Genero;
 import org.br.farmacia.models.Funcionario;
-import org.br.farmacia.models.Setor; // Certifique-se de importar Setor se for usado
+import org.br.farmacia.models.Setor;
 
 import javax.servlet.ServletContext;
 import java.sql.*;
@@ -19,8 +19,8 @@ public class FuncionarioRepository {
     }
 
     public Funcionario findById(int id) {
-        String sql = "SELECT id, nome, data_Nascimento, genero, cargo, salario, " +
-                "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, setor_id " +
+        String sql = "SELECT id, nome, genero, cargo, salario, " +
+                "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, percentual_irrf, percentual_inss, bonificacao, setor_id " +
                 "FROM funcionario WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -36,9 +36,9 @@ public class FuncionarioRepository {
 
     public List<Funcionario> findBySetorId(int setorId) {
         List<Funcionario> lista = new ArrayList<>();
-        String sql = "SELECT id, nome, data_Nascimento, genero, cargo, salario, " +
-                "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, setor_id " +
-                "FROM funcionario WHERE id_setor = ?";
+        String sql = "SELECT id, nome, genero, cargo, salario, " +
+                "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, percentual_irrf, percentual_inss, bonificacao, setor_id " +
+                "FROM funcionario WHERE setor_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, setorId);
             ResultSet rs = ps.executeQuery();
@@ -53,8 +53,8 @@ public class FuncionarioRepository {
 
     public List<Funcionario> findAll() {
         List<Funcionario> lista = new ArrayList<>();
-        String sql = "SELECT id, nome, data_Nascimento, genero, cargo, salario, " +
-                "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, setor_id " +
+        String sql = "SELECT id, nome, genero, cargo, salario, " +
+                "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, percentual_irrf, percentual_inss, bonificacao, setor_id " +
                 "FROM funcionario";
         try (Statement stmt = connection.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
@@ -68,23 +68,25 @@ public class FuncionarioRepository {
     }
 
     public boolean save(Funcionario funcionario) {
-        String sql = "INSERT INTO funcionario (nome, data_Nascimento, genero, cargo, salario, " +
-                "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, setor_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO funcionario (nome, genero, cargo, salario, " +
+                "vale_refeicao, vale_alimentacao, plano_saude, plano_odonto, percentual_irrf, percentual_inss, bonificacao, setor_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, funcionario.getNome());
-            ps.setDate(2, funcionario.getDataNascimento());
-            ps.setString(3, funcionario.getGenero().name());
-            ps.setString(4, funcionario.getCargo().name());
-            ps.setDouble(5, funcionario.getSalario());
-            ps.setDouble(6, funcionario.getValeRefeicao());
-            ps.setDouble(7, funcionario.getValeAlimentacao());
-            ps.setDouble(8, funcionario.getPlanoSaude());
-            ps.setDouble(9, funcionario.getPlanoOdonto());
-            if (funcionario.getSetor() != null) {
-                ps.setInt(10, funcionario.getSetor().getId());
+            ps.setString(2, funcionario.getGenero().name());
+            ps.setString(3, funcionario.getCargo().name());
+            ps.setDouble(4, funcionario.getSalario());
+            ps.setDouble(5, funcionario.getValeRefeicao());
+            ps.setDouble(6, funcionario.getValeAlimentacao());
+            ps.setDouble(7, funcionario.getPlanoSaude());
+            ps.setDouble(8, funcionario.getPlanoOdonto());
+            ps.setDouble(9, funcionario.getPercentualIrrf());
+            ps.setDouble(10, funcionario.getPercentualInss());
+            ps.setDouble(11, funcionario.getBonificacao());
+            if (funcionario.getSetor() != null && funcionario.getSetor().getId() > 0) {
+                ps.setInt(12, funcionario.getSetor().getId());
             } else {
-                ps.setNull(10, Types.INTEGER);
+                ps.setNull(12, Types.INTEGER);
             }
 
             int affected = ps.executeUpdate();
@@ -104,25 +106,27 @@ public class FuncionarioRepository {
     }
 
     public boolean update(Funcionario funcionario) {
-        String sql = "UPDATE funcionario SET nome = ?, idade = ?, genero = ?, cargo = ?, salario = ?, " +
-                "vale_refeicao = ?, vale_alimentacao = ?, plano_saude = ?, plano_odonto = ?, setor_id = ? " +
+        String sql = "UPDATE funcionario SET nome = ?, genero = ?, cargo = ?, salario = ?, " +
+                "vale_refeicao = ?, vale_alimentacao = ?, plano_saude = ?, plano_odonto = ?, percentual_irrf = ?, percentual_inss = ?, bonificacao = ?, setor_id = ? " +
                 "WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, funcionario.getNome());
-            ps.setDate(2, funcionario.getDataNascimento());
-            ps.setString(3, funcionario.getGenero().name());
-            ps.setString(4, funcionario.getCargo().name());
-            ps.setDouble(5, funcionario.getSalario());
-            ps.setDouble(6, funcionario.getValeRefeicao());
-            ps.setDouble(7, funcionario.getValeAlimentacao());
-            ps.setDouble(8, funcionario.getPlanoSaude());
-            ps.setDouble(9, funcionario.getPlanoOdonto());
+            ps.setString(2, funcionario.getGenero().name());
+            ps.setString(3, funcionario.getCargo().name());
+            ps.setDouble(4, funcionario.getSalario());
+            ps.setDouble(5, funcionario.getValeRefeicao());
+            ps.setDouble(6, funcionario.getValeAlimentacao());
+            ps.setDouble(7, funcionario.getPlanoSaude());
+            ps.setDouble(8, funcionario.getPlanoOdonto());
+            ps.setDouble(9, funcionario.getPercentualIrrf());
+            ps.setDouble(10, funcionario.getPercentualInss());
+            ps.setDouble(11, funcionario.getBonificacao());
             if (funcionario.getSetor() != null) {
-                ps.setInt(10, funcionario.getSetor().getId());
+                ps.setInt(12, funcionario.getSetor().getId());
             } else {
-                ps.setNull(10, Types.INTEGER);
+                ps.setNull(12, Types.INTEGER);
             }
-            ps.setInt(11, funcionario.getId());
+            ps.setInt(13, funcionario.getId());
 
             int affected = ps.executeUpdate();
             return affected == 1;
@@ -147,7 +151,6 @@ public class FuncionarioRepository {
     private Funcionario mapResultSetToFuncionario(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String nome = rs.getString("nome");
-        Date data_Nascimento = rs.getDate("data_Nascimento");
         Genero genero = Genero.valueOf(rs.getString("genero").toUpperCase());
         Cargo cargo = Cargo.valueOf(rs.getString("cargo").toUpperCase());
         double salario = rs.getDouble("salario");
@@ -155,15 +158,24 @@ public class FuncionarioRepository {
         double valeAlimentacao = rs.getDouble("vale_alimentacao");
         double planoSaude = rs.getDouble("plano_saude");
         double planoOdonto = rs.getDouble("plano_odonto");
+        double percentualIrrf = rs.getDouble("percentual_irrf");
+        double percentualInss = rs.getDouble("percentual_inss");
+        double bonificacao = rs.getDouble("bonificacao");
+        int setorId = rs.getInt("setor_id");
 
-        Funcionario funcionario = new Funcionario(nome, id, data_Nascimento, genero, cargo,
-                salario, valeRefeicao, valeAlimentacao,
-                planoSaude, planoOdonto);
+        Funcionario funcionario = new Funcionario(id, nome, genero, cargo,
+                salario, valeRefeicao, valeAlimentacao, planoSaude, planoOdonto,
+                percentualIrrf, percentualInss, bonificacao);
 
-        int setorId = rs.getInt("id_setor");
+
         if (!rs.wasNull()) {
-
+            Setor setor = new Setor();
+            setor.setId(setorId);
+            funcionario.setSetor(setor);
+        } else {
+            funcionario.setSetor(null);
         }
+
         return funcionario;
     }
 }

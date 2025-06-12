@@ -27,10 +27,8 @@ public class EmpresaRepository {
                 empresa.setId(rs.getInt("ID"));
                 empresa.setNome(rs.getString("NOME"));
                 empresa.setCaixaTotal(rs.getDouble("CAIXA_TOTAL"));
-
                 empresas.add(empresa);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -52,7 +50,6 @@ public class EmpresaRepository {
                 empresa.setNome(rs.getString("NOME"));
                 empresa.setCaixaTotal(rs.getDouble("CAIXA_TOTAL"));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -67,7 +64,6 @@ public class EmpresaRepository {
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, empresa.getNome());
             ps.setDouble(2, empresa.getCaixaTotal());
-
             affectedRows = ps.executeUpdate();
 
             if (affectedRows > 0) {
@@ -76,7 +72,6 @@ public class EmpresaRepository {
                     empresa.setId(keys.getInt(1));
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -92,9 +87,7 @@ public class EmpresaRepository {
             ps.setString(1, empresa.getNome());
             ps.setDouble(2, empresa.getCaixaTotal());
             ps.setInt(3, empresa.getId());
-
             affectedRows = ps.executeUpdate();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -108,9 +101,7 @@ public class EmpresaRepository {
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
-
             affectedRows = ps.executeUpdate();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

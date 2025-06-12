@@ -3,82 +3,83 @@ package org.br.farmacia.models;
 import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.Genero;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.Period;
-
 public class Funcionario {
 
-    private String nome;
     private int id;
-    private Date dataNascimento;
+    private String nome;
     private Genero genero;
     private Cargo cargo;
     private double salario;
-    private Setor setor;
     private double valeRefeicao;
     private double valeAlimentacao;
     private double planoSaude;
     private double planoOdonto;
+    private double percentualIrrf;
+    private double percentualInss;
+    private double bonificacao; // Added bonificacao
+    private int setorId;
+    private Setor setor;
 
-    public Funcionario(String nome,int id , Date dataNascimento , Genero genero,
-                       Cargo cargo, double salario) {
+    public Funcionario() {
+    }
 
-        if (dataNascimento == null) throw new IllegalArgumentException("Idade inválida");
-        if (salario <= 0) throw new IllegalArgumentException("Salário deve ser maior que zero");
-
-        this.nome = nome;
+    public Funcionario(int id, String nome, Genero genero, Cargo cargo,
+                       double salario, double valeRefeicao, double valeAlimentacao,
+                       double planoSaude, double planoOdonto,
+                       double percentualIrrf, double percentualInss, double bonificacao) {
         this.id = id;
-        this.dataNascimento = dataNascimento;
+        this.nome = nome;
         this.genero = genero;
         this.cargo = cargo;
         this.salario = salario;
-        this.valeRefeicao = 0.0;
-        this.valeAlimentacao = 0.0;
-        this.planoSaude = 0.0;
-        this.planoOdonto = 0.0;
-    }
-
-    public Funcionario(String nome, int id, Date dataNascimento, Genero genero,
-                       Cargo cargo, double salario, double valeRefeicao,
-                       double valeAlimentacao, double planoSaude, double planoOdonto) {
-        this(nome, id, dataNascimento, genero, cargo, salario);
         this.valeRefeicao = valeRefeicao;
         this.valeAlimentacao = valeAlimentacao;
         this.planoSaude = planoSaude;
         this.planoOdonto = planoOdonto;
+        this.percentualIrrf = percentualIrrf;
+        this.percentualInss = percentualInss;
+        this.bonificacao = bonificacao;
     }
 
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public Date getDataNascimento() { return dataNascimento; }
-    public void setIdade(Date dataNascimento) { this.dataNascimento = dataNascimento; }
-
-    public void setDataNascimento(Date dataNascimento) {
-        this.dataNascimento = dataNascimento;
+    public int getId() {
+        return id;
     }
 
-    public int getIdade() {
-        LocalDate nascimento = dataNascimento.toLocalDate();
-        return Period.between(nascimento, LocalDate.now()).getYears();
+    public void setId(int id) {
+        this.id = id;
     }
 
+    public String getNome() {
+        return nome;
+    }
 
-    public Genero getGenero() { return genero; }
-    public void setGenero(Genero genero) { this.genero = genero; }
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-    public Cargo getCargo() { return cargo; }
-    public void setCargo(Cargo cargo) { this.cargo = cargo; }
+    public Genero getGenero() {
+        return genero;
+    }
 
-    public double getSalario() { return salario; }
-    public void setSalario(double salario) { this.salario = salario; }
+    public void setGenero(Genero genero) {
+        this.genero = genero;
+    }
 
-    public Setor getSetor() { return setor; }
-    public void setSetor(Setor setor) { this.setor = setor; }
+    public Cargo getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(Cargo cargo) {
+        this.cargo = cargo;
+    }
+
+    public double getSalario() {
+        return salario;
+    }
+
+    public void setSalario(double salario) {
+        this.salario = salario;
+    }
 
     public double getValeRefeicao() {
         return valeRefeicao;
@@ -112,20 +113,72 @@ public class Funcionario {
         this.planoOdonto = planoOdonto;
     }
 
+    public double getPercentualIrrf() {
+        return percentualIrrf;
+    }
+
+    public void setPercentualIrrf(double percentualIrrf) {
+        this.percentualIrrf = percentualIrrf;
+    }
+
+    public double getPercentualInss() {
+        return percentualInss;
+    }
+
+    public void setPercentualInss(double percentualInss) {
+        this.percentualInss = percentualInss;
+    }
+
+    public double getBonificacao() {
+        return bonificacao;
+    }
+
+    public void setBonificacao(double bonificacao) {
+        this.bonificacao = bonificacao;
+    }
+
+    public int getSetorId() {
+        return setorId;
+    }
+
+    public void setSetorId(int setorId) {
+        this.setorId = setorId;
+    }
+
+    public Setor getSetor() {
+        return setor;
+    }
+
+    public void setSetor(Setor setor) {
+        this.setor = setor;
+    }
+
+    public double getSalarioLiquido() {
+        double irrf = salario * (percentualIrrf / 100.0);
+        double inss = salario * (percentualInss / 100.0);
+        return salario - irrf - inss + bonificacao;
+    }
+
+    public double getTotalBeneficios() {
+        return valeRefeicao + valeAlimentacao + planoSaude + planoOdonto;
+    }
+
     @Override
     public String toString() {
         return "Funcionario{" +
-                "nome='" + nome + '\'' +
-                ", id=" + id +
-                ", idade=" + dataNascimento +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
                 ", genero=" + genero +
                 ", cargo=" + cargo +
-                ", setor=" + (setor != null ? setor.getTipoSetor() : "Nenhum") +
-                ", salario=R$" + String.format("%.2f", salario) +
-                ", valeRefeicao=R$" + String.format("%.2f", valeRefeicao) +
-                ", valeAlimentacao=R$" + String.format("%.2f", valeAlimentacao) +
-                ", planoSaude=R$" + String.format("%.2f", planoSaude) +
-                ", planoOdonto=R$" + String.format("%.2f", planoOdonto) +
+                ", salario=" + salario +
+                ", valeRefeicao=" + valeRefeicao +
+                ", valeAlimentacao=" + valeAlimentacao +
+                ", planoSaude=" + planoSaude +
+                ", planoOdonto=" + planoOdonto +
+                ", percentualIrrf=" + percentualIrrf +
+                ", percentualInss=" + percentualInss +
+                ", bonificacao=" + bonificacao + // Added to toString
+                ", setor=" + (setor != null ? setor.getTipoSetor() : "null") + // Adjusted for clarity
                 '}';
     }
 }

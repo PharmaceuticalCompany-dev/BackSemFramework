@@ -1,5 +1,7 @@
 package org.br.farmacia.config;
 
+import org.br.farmacia.enums.TipoSetor;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletContext;
@@ -61,6 +63,28 @@ public class DatabaseInitializer implements ServletContextListener {
                     System.out.println("Empresa padrão inserida no banco.");
                 }
             }
+
+            // Checar se já existem setores
+            boolean setoresExistem = false;
+            try (Statement stmt = connection.createStatement()) {
+                ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM SETOR");
+                if (rs.next()) {
+                    setoresExistem = rs.getInt(1) > 0;
+                }
+            }
+
+            // Se não existir, inserir setores do enum
+            if (!setoresExistem) {
+                try (Statement stmt = connection.createStatement()) {
+                    for (TipoSetor setor : TipoSetor.values()) {
+                        String insertSetor = "INSERT INTO SETOR (NOME) VALUES ('" + setor.toString() + "')";
+                        stmt.executeUpdate(insertSetor);
+                    }
+                    System.out.println("Setores padrão inseridos no banco.");
+                }
+            }
+
+
 
             ServletContext context = sce.getServletContext();
             context.setAttribute("DBConnection", connection);

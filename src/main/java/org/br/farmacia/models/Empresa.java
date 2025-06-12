@@ -1,44 +1,21 @@
 package org.br.farmacia.models;
 
-import org.br.farmacia.interfaces.ICalculavel;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-public class Empresa implements ICalculavel {
+public class Empresa {
     private Integer id;
     private String nome;
     private double caixaTotal;
-    private List<Setor> setores;
-    private List<Produto> produtos;
-    private List<Transportadora> transportadoras;
-    private List<VendasProgramadas> vendasProgramadas;
 
     public Empresa() {
-        this.caixaTotal = 200000.00;
-        this.vendasProgramadas = new ArrayList<>();
     }
 
-    public Empresa(String nome, List<Setor> setores, List<Produto> produtos, List<Transportadora> transportadoras) {
+    public Empresa(Integer id, String nome, double caixaTotal) {
+        this.id = id;
         this.nome = nome;
-        this.caixaTotal = 200000.00;
-        this.setores = setores;
-        this.produtos = produtos;
-        this.transportadoras = transportadoras;
-        this.vendasProgramadas = new ArrayList<>();
+        this.caixaTotal = caixaTotal;
     }
 
     public Integer getId() {
         return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
     }
 
     public void setNome(String nome) {
@@ -49,35 +26,15 @@ public class Empresa implements ICalculavel {
         return caixaTotal;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public void setCaixaTotal(double caixaTotal) {
         this.caixaTotal = caixaTotal;
     }
 
-    public List<Setor> getSetores() {
-        return setores;
+    public String getNome() {
+        return nome;
     }
-
-    public void setSetores(List<Setor> setores) {
-        this.setores = setores;
-    }
-
-    public List<Produto> getProdutos() {
-        return produtos;
-    }
-
-    public void setProdutos(List<Produto> produtos) {
-        this.produtos = produtos;
-    }
-
-    public List<Transportadora> getTransportadoras() {
-        return transportadoras;
-    }
-
-    public void setTransportadoras(List<Transportadora> transportadoras) {
-        this.transportadoras = transportadoras;
-    }
-
-
-
-    
 }

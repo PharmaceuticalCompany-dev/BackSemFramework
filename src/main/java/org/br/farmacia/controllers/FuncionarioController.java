@@ -1,8 +1,6 @@
 package org.br.farmacia.controllers;
 
-//Gson é uma biblioteca do Google para converter objetos Java em JSON e vice-versa
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.Genero;
 import org.br.farmacia.models.Funcionario;
@@ -14,26 +12,20 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Date;
 import java.util.List;
 
-//WebServlet é uma anotação para mapear a classe a uma URL específica.
 @WebServlet("/funcionarios")
-//HttpServlet é a classe base para implementar servlets que respondem a requisições HTTP.
-//ServletContext fornece contexto da aplicação para compartilhar informações (como a conexão do banco).
 public class FuncionarioController extends HttpServlet {
 
     private FuncionarioService funcionarioService;
     private Gson gson = new Gson();
 
-    //init() é chamado pelo servidor uma vez quando o servlet é criado.
     @Override
     public void init() throws ServletException {
         ServletContext context = getServletContext();
         funcionarioService = new FuncionarioService(context);
 
-        //Funcionario exemplo = new Funcionario("João da Silva", 5, 35, Genero.MASCULINO, Cargo.GERENTE, 5000);
-        //funcionarioService.adicionarFuncionario(exemplo);
+        gson = new GsonBuilder().create();
     }
 
     private void setCorsHeaders(HttpServletResponse resp) {
@@ -43,7 +35,6 @@ public class FuncionarioController extends HttpServlet {
         resp.setHeader("Access-Control-Max-Age", "3600");
     }
 
-    //quando recebe uma requisição get ele chama esse metodo.
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setCorsHeaders(resp);
@@ -65,12 +56,18 @@ public class FuncionarioController extends HttpServlet {
             FuncionarioInput input = gson.fromJson(req.getReader(), FuncionarioInput.class);
 
             Funcionario novoFuncionario = new Funcionario(
-                    input.nome,
                     input.id,
-                    input.dataNascimento,
+                    input.nome,
                     Genero.valueOf(input.genero.toUpperCase()),
                     Cargo.valueOf(input.cargo.toUpperCase()),
-                    input.salario
+                    input.salario,
+                    input.valeRefeicao,
+                    input.valeAlimentacao,
+                    input.planoSaude,
+                    input.planoOdonto,
+                    input.percentualIrrf,
+                    input.percentualInss,
+                    input.bonificacao // Pass bonificacao from input
             );
 
             funcionarioService.adicionarFuncionario(novoFuncionario);
@@ -88,13 +85,123 @@ public class FuncionarioController extends HttpServlet {
         out.flush();
     }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
+        try {
+            // Assuming the ID is passed as a path parameter or query parameter,
+            // or within the JSON body if it's for update.
+            // Let's assume it's a query parameter for simplicity: /funcionarios?id=X
+            String idParam = req.getParameter("id");
+            if (idParam == null || idParam.isEmpty()) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                JsonObject error = new JsonObject();
+                error.addProperty("error", "ID do funcionário não fornecido para atualização.");
+                out.println(gson.toJson(error));
+                return;
+            }
+            int funcionarioId = Integer.parseInt(idParam);
+
+
+            FuncionarioInput input = gson.fromJson(req.getReader(), FuncionarioInput.class);
+
+            Funcionario funcionarioAtualizado = new Funcionario(
+                    funcionarioId, // Use the ID from the path/query
+                    input.nome,
+                    Genero.valueOf(input.genero.toUpperCase()),
+                    Cargo.valueOf(input.cargo.toUpperCase()),
+                    input.salario,
+                    input.valeRefeicao,
+                    input.valeAlimentacao,
+                    input.planoSaude,
+                    input.planoOdonto,
+                    input.percentualIrrf,
+                    input.percentualInss,
+                    input.bonificacao // Pass bonificacao from input
+            );
+
+            boolean success = funcionarioService.editarFuncionario(funcionarioId, funcionarioAtualizado);
+
+            if (success) {
+                JsonObject json = new JsonObject();
+                json.addProperty("message", "Funcionário atualizado com sucesso");
+                out.println(gson.toJson(json));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                JsonObject error = new JsonObject();
+                error.addProperty("error", "Funcionário com ID " + funcionarioId + " não encontrado.");
+                out.println(gson.toJson(error));
+            }
+
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "ID do funcionário inválido: " + e.getMessage());
+            out.println(gson.toJson(error));
+        }
+        catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "Erro ao atualizar funcionário: " + e.getMessage());
+            out.println(gson.toJson(error));
+        }
+
+        out.flush();
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
+        try {
+            String idParam = req.getParameter("id");
+            if (idParam == null || idParam.isEmpty()) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                JsonObject error = new JsonObject();
+                error.addProperty("error", "ID do funcionário não fornecido para exclusão.");
+                out.println(gson.toJson(error));
+                return;
+            }
+            int funcionarioId = Integer.parseInt(idParam);
+
+            funcionarioService.removerFuncionario(funcionarioId);
+
+            JsonObject json = new JsonObject();
+            json.addProperty("message", "Funcionário removido com sucesso");
+            out.println(gson.toJson(json));
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "ID do funcionário inválido: " + e.getMessage());
+            out.println(gson.toJson(error));
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "Erro ao remover funcionário: " + e.getMessage());
+            out.println(gson.toJson(error));
+        }
+
+        out.flush();
+    }
+
 
     private static class FuncionarioInput {
         int id;
         String nome;
-        Date dataNascimento;
         String genero;
         String cargo;
         double salario;
+        double valeRefeicao;
+        double valeAlimentacao;
+        double planoSaude;
+        double planoOdonto;
+        double percentualIrrf;
+        double percentualInss;
+        double bonificacao; // Added bonificacao to input
     }
 }

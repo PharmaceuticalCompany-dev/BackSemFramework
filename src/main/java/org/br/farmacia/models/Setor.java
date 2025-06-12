@@ -5,24 +5,25 @@ import java.util.List;
 import java.util.ArrayList; // Added for the constructor
 
 public class Setor {
-    private int id; // Assuming an ID for database operations
+    private int id;
     private TipoSetor tipoSetor;
-    private List<Funcionario> funcionarios; // As per UML
+    private List<Funcionario> funcionarios;
 
-    // Constructor for creating new Setor objects (without ID from DB)
     public Setor(TipoSetor tipoSetor, List<Funcionario> funcionarios) {
         this.tipoSetor = tipoSetor;
         this.funcionarios = funcionarios;
     }
 
-    // Constructor for loading from DB (with ID)
     public Setor(int id, TipoSetor tipoSetor, List<Funcionario> funcionarios) {
         this.id = id;
         this.tipoSetor = tipoSetor;
         this.funcionarios = funcionarios;
     }
 
-    // Getters and Setters
+    public Setor() {
+
+    }
+
     public int getId() {
         return id;
     }
@@ -46,6 +47,4 @@ public class Setor {
     public void setFuncionarios(List<Funcionario> funcionarios) {
         this.funcionarios = funcionarios;
     }
-
-    // You might also want to override toString(), equals(), and hashCode()
 }
