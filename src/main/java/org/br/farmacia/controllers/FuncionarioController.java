@@ -5,6 +5,7 @@ import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.Genero;
 import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.services.FuncionarioService;
+import org.br.farmacia.util.LocalDateAdapter;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -12,20 +13,24 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.util.List;
 
 @WebServlet("/funcionarios")
 public class FuncionarioController extends HttpServlet {
 
     private FuncionarioService funcionarioService;
-    private Gson gson = new Gson();
+    private Gson gson;
 
     @Override
     public void init() throws ServletException {
         ServletContext context = getServletContext();
         funcionarioService = new FuncionarioService(context);
 
-        gson = new GsonBuilder().create();
+        // Configura Gson para suportar LocalDate com o adapter
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .create();
     }
 
     private void setCorsHeaders(HttpServletResponse resp) {
@@ -55,9 +60,15 @@ public class FuncionarioController extends HttpServlet {
         try {
             FuncionarioInput input = gson.fromJson(req.getReader(), FuncionarioInput.class);
 
+            LocalDate dataNascimentoLocalDate = null;
+            if (input.dataNascimento != null && !input.dataNascimento.isEmpty()) {
+                dataNascimentoLocalDate = LocalDate.parse(input.dataNascimento);
+            }
+
             Funcionario novoFuncionario = new Funcionario(
                     input.id,
                     input.nome,
+                    input.dataNascimento,
                     Genero.valueOf(input.genero.toUpperCase()),
                     Cargo.valueOf(input.cargo.toUpperCase()),
                     input.salario,
@@ -67,7 +78,7 @@ public class FuncionarioController extends HttpServlet {
                     input.planoOdonto,
                     input.percentualIrrf,
                     input.percentualInss,
-                    input.bonificacao // Pass bonificacao from input
+                    input.bonificacao
             );
 
             funcionarioService.adicionarFuncionario(novoFuncionario);
@@ -92,9 +103,6 @@ public class FuncionarioController extends HttpServlet {
         PrintWriter out = resp.getWriter();
 
         try {
-            // Assuming the ID is passed as a path parameter or query parameter,
-            // or within the JSON body if it's for update.
-            // Let's assume it's a query parameter for simplicity: /funcionarios?id=X
             String idParam = req.getParameter("id");
             if (idParam == null || idParam.isEmpty()) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -105,12 +113,12 @@ public class FuncionarioController extends HttpServlet {
             }
             int funcionarioId = Integer.parseInt(idParam);
 
-
             FuncionarioInput input = gson.fromJson(req.getReader(), FuncionarioInput.class);
 
             Funcionario funcionarioAtualizado = new Funcionario(
-                    funcionarioId, // Use the ID from the path/query
+                    funcionarioId,
                     input.nome,
+                    input.dataNascimento,
                     Genero.valueOf(input.genero.toUpperCase()),
                     Cargo.valueOf(input.cargo.toUpperCase()),
                     input.salario,
@@ -120,7 +128,7 @@ public class FuncionarioController extends HttpServlet {
                     input.planoOdonto,
                     input.percentualIrrf,
                     input.percentualInss,
-                    input.bonificacao // Pass bonificacao from input
+                    input.bonificacao
             );
 
             boolean success = funcionarioService.editarFuncionario(funcionarioId, funcionarioAtualizado);
@@ -141,8 +149,7 @@ public class FuncionarioController extends HttpServlet {
             JsonObject error = new JsonObject();
             error.addProperty("error", "ID do funcionário inválido: " + e.getMessage());
             out.println(gson.toJson(error));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             JsonObject error = new JsonObject();
             error.addProperty("error", "Erro ao atualizar funcionário: " + e.getMessage());
@@ -189,10 +196,10 @@ public class FuncionarioController extends HttpServlet {
         out.flush();
     }
 
-
     private static class FuncionarioInput {
         int id;
         String nome;
+        String dataNascimento;
         String genero;
         String cargo;
         double salario;
@@ -202,6 +209,6 @@ public class FuncionarioController extends HttpServlet {
         double planoOdonto;
         double percentualIrrf;
         double percentualInss;
-        double bonificacao; // Added bonificacao to input
+        double bonificacao;
     }
 }

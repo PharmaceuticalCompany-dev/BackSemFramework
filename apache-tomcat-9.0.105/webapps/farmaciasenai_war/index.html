@@ -161,7 +161,7 @@
           <input type="text" id="nome" name="nome" required />
 
           <label for="datadenascimento">Data de Nascimento:</label>
-          <input type="date" id="datadenascimento" name="idatadenascimento" required min="0" />
+          <input type="date" id="datadenascimento" name="datadenascimento" required min="0" />
 
           <label for="genero">Gênero:</label>
           <select id="genero" name="genero" required>
@@ -212,7 +212,9 @@
         funcionarios.forEach(f => {
           const div = document.createElement('div');
           div.className = 'funcionario-item';
-          div.textContent = `ID: ${f.id} | Nome: ${f.nome} | Idade: ${f.idade} | Gênero: ${f.genero} | Cargo: ${f.cargo} | Salário: R$ ${f.salario.toFixed(2)}`;
+          div.textContent = `ID: ${f.id} | Nome: ${f.nome} | Data de Nascimento: ${f.dataDeNascimento} | Gênero: ${f.genero}
+          | Cargo: ${f.cargo} | Salário: R$ ${f.salario.toFixed(2)} | Vale alimentação: ${f.valeRefeicao.toFixed(2)}
+          | Vale Alimentação: ${f.valeAlimentacao.toFixed(2)} | Plano de saúde: ${f.planoSaude.toFixed(2)} | Plano Odonto: ${f.planoOdonto.toFixed(2)}`;
           listDiv.appendChild(div);
         });
       } catch (error) {
@@ -229,14 +231,16 @@
       messageDiv.textContent = '';
       messageDiv.className = '';
 
+
       const funcionario = {
         id: Number(document.getElementById('id').value),
         nome: document.getElementById('nome').value,
-        dataDeNascimento: Number(document.getElementById('idade').value),
+        dataNascimento: document.getElementById('datadenascimento').value,  // CORRIGIDO aqui
         genero: document.getElementById('genero').value,
         cargo: document.getElementById('cargo').value,
         salario: Number(document.getElementById('salario').value)
       };
+
 
       try {
         const response = await fetch(apiUrl, {

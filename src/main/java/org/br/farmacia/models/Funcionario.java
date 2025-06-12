@@ -3,10 +3,14 @@ package org.br.farmacia.models;
 import org.br.farmacia.enums.Cargo;
 import org.br.farmacia.enums.Genero;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 public class Funcionario {
 
     private int id;
     private String nome;
+    private String dataNascimento;
     private Genero genero;
     private Cargo cargo;
     private double salario;
@@ -23,12 +27,13 @@ public class Funcionario {
     public Funcionario() {
     }
 
-    public Funcionario(int id, String nome, Genero genero, Cargo cargo,
+    public Funcionario(int id, String nome, String dataNascimento, Genero genero, Cargo cargo,
                        double salario, double valeRefeicao, double valeAlimentacao,
                        double planoSaude, double planoOdonto,
                        double percentualIrrf, double percentualInss, double bonificacao) {
         this.id = id;
         this.nome = nome;
+        this.dataNascimento = dataNascimento;
         this.genero = genero;
         this.cargo = cargo;
         this.salario = salario;
@@ -55,6 +60,14 @@ public class Funcionario {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(String dataNascimento) {
+        this.dataNascimento = dataNascimento;
     }
 
     public Genero getGenero() {
@@ -168,6 +181,7 @@ public class Funcionario {
         return "Funcionario{" +
                 "id=" + id +
                 ", nome='" + nome + '\'' +
+                ", dataNascimento=" + dataNascimento +
                 ", genero=" + genero +
                 ", cargo=" + cargo +
                 ", salario=" + salario +
