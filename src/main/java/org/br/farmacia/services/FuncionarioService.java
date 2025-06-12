@@ -111,11 +111,9 @@ public class FuncionarioService {
                 valeAlimentacao *= 1.2;
                 break;
             case ATENDENTE:
-                // Não há modificadores específicos para atendente aqui
                 break;
         }
 
-        // Atribuir os valores calculados diretamente ao objeto Funcionario
         funcionario.setValeRefeicao(valeRefeicao);
         funcionario.setValeAlimentacao(valeAlimentacao);
         funcionario.setPlanoSaude(planoSaude);

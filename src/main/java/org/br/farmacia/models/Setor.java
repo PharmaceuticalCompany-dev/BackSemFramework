@@ -2,7 +2,7 @@ package org.br.farmacia.models;
 
 import org.br.farmacia.enums.TipoSetor;
 import java.util.List;
-import java.util.ArrayList; // Added for the constructor
+import java.util.ArrayList;
 
 public class Setor {
     private int id;
@@ -12,6 +12,7 @@ public class Setor {
     public Setor(TipoSetor tipoSetor, List<Funcionario> funcionarios) {
         this.tipoSetor = tipoSetor;
         this.funcionarios = funcionarios;
+        this.funcionarios = new ArrayList<>();
     }
 
     public Setor(int id, TipoSetor tipoSetor, List<Funcionario> funcionarios) {
