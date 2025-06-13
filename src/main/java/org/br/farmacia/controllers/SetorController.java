@@ -1,10 +1,12 @@
 package org.br.farmacia.controllers;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.br.farmacia.enums.TipoSetor;
 import org.br.farmacia.models.Setor;
 import org.br.farmacia.services.SetorService;
+import org.br.farmacia.util.LocalDateAdapter;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -12,6 +14,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.util.List;
 
 @WebServlet("/setores")
@@ -22,6 +25,10 @@ public class SetorController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         setorService = new SetorService(getServletContext());
+
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .create();
     }
 
     @Override

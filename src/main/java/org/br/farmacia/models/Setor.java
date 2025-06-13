@@ -11,7 +11,6 @@ public class Setor {
 
     public Setor(TipoSetor tipoSetor, List<Funcionario> funcionarios) {
         this.tipoSetor = tipoSetor;
-        this.funcionarios = funcionarios;
         this.funcionarios = new ArrayList<>();
     }
 
@@ -19,6 +18,11 @@ public class Setor {
         this.id = id;
         this.tipoSetor = tipoSetor;
         this.funcionarios = funcionarios;
+    }
+
+    public Setor(TipoSetor tipoSetor) {
+        this.tipoSetor = tipoSetor;
+        this.funcionarios = new ArrayList<>();
     }
 
     public Setor() {

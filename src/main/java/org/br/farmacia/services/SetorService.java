@@ -57,7 +57,7 @@ public class SetorService {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    System.err.println("Erro ao fechar conexão no buscarPorId: " + e.getMessage());
+                    System.err.println("Erro " + e.getMessage());
                 }
             }
         }
@@ -74,7 +74,7 @@ public class SetorService {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    System.err.println("Erro ao fechar conexão no listarSetores: " + e.getMessage());
+                    System.err.println("Erro " + e.getMessage());
                 }
             }
         }
@@ -92,7 +92,7 @@ public class SetorService {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    System.err.println("Erro ao fechar conexão no editarSetor: " + e.getMessage());
+                    System.err.println(" Erro " + e.getMessage());
                 }
             }
         }
@@ -109,7 +109,7 @@ public class SetorService {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    System.err.println("Erro ao fechar conexão no removerSetor: " + e.getMessage());
+                    System.err.println("Erro " + e.getMessage());
                 }
             }
         }

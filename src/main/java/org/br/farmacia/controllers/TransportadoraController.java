@@ -50,29 +50,22 @@ public class TransportadoraController extends HttpServlet {
         setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
+        TransportadoraInput input = gson.fromJson(req.getReader(), TransportadoraInput.class);
 
-        try {
-            TransportadoraInput input = gson.fromJson(req.getReader(), TransportadoraInput.class);
+        Transportadora novaTransportadora = new Transportadora(
+                input.id,
+                input.nome,
+                new ArrayList<>(input.locaisAtendimento)
+        );
 
-            Transportadora novaTransportadora = new Transportadora(
-                    input.id,
-                    input.nome,
-                    new ArrayList<>(input.locaisAtendimento)
-            );
+        novaTransportadora.setEmpresaId(input.empresaId);
 
-            novaTransportadora.setEmpresaId(input.empresaId);
+        transportadoraService.adicionarTransportadora(novaTransportadora);
 
-            transportadoraService.adicionarTransportadora(novaTransportadora);
+        JsonObject json = new JsonObject();
+        json.addProperty("message", "Transportadora adicionada com sucesso");
+        out.println(gson.toJson(json));
 
-            JsonObject json = new JsonObject();
-            json.addProperty("message", "Transportadora adicionada com sucesso");
-            out.println(gson.toJson(json));
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Erro ao adicionar transportadora: " + e.getMessage());
-            out.println(gson.toJson(error));
-        }
 
         out.flush();
     }
