@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+
+
 @WebServlet("/funcionarios")
 public class FuncionarioController extends HttpServlet {
 
@@ -125,6 +127,9 @@ public class FuncionarioController extends HttpServlet {
         double percentualINSS;
         double bonificacao;
     }
+
+
+
 
 
 
