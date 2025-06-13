@@ -24,11 +24,19 @@ public class SetorController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        setorService = new SetorService(getServletContext());
+        ServletContext servletContext = getServletContext();
+        setorService = new SetorService(servletContext);
 
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                 .create();
+    }
+
+    private void setCorsHeaders(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        resp.setHeader("Access-Control-Max-Age", "3600");
     }
 
     @Override
@@ -36,31 +44,17 @@ public class SetorController extends HttpServlet {
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
         String idParam = req.getParameter("id");
-
-        if (idParam != null) {
-            try {
-                int id = Integer.parseInt(idParam);
-                Setor setor = setorService.buscarPorId(id);
-                if (setor != null) {
-                    out.println(gson.toJson(setor));
-                } else {
-                    resp.setStatus(404);
-                    out.println(gson.toJson(errorJson("Setor nao encontrado")));
-                }
-            } catch (NumberFormatException e) {
-                resp.setStatus(400);
-                out.println(gson.toJson(errorJson("ID invalido")));
+        if (idParam != null && !idParam.isEmpty()) {
+            int id = Integer.parseInt(idParam);
+            Setor setor = setorService.buscarPorId(id);
+            if (setor != null) {
+                out.println(gson.toJson(setor));
             }
         } else {
             List<Setor> setores = setorService.listarSetores();
             out.println(gson.toJson(setores));
         }
-        out.flush();
-    }
 
-    private JsonObject errorJson(String msg) {
-        JsonObject json = new JsonObject();
-        json.addProperty("error", msg);
-        return json;
+        out.flush();
     }
 }

@@ -11,8 +11,8 @@ public class SetorRepository {
 
     private final Connection connection;
 
-    public SetorRepository(Connection connection) {
-        this.connection = connection;
+    public SetorRepository(ServletContext context) {
+        this.connection = (Connection) context.getAttribute("DBConnection");
     }
 
     public Setor findById(int id) {
