@@ -10,6 +10,7 @@ import com.google.gson.JsonParseException;
 
 import org.br.farmacia.models.VendasProgramadas;
 import org.br.farmacia.services.VendasProgramadasService;
+import org.br.farmacia.util.LocalDateAdapter;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -34,16 +35,8 @@ public class VendasProgramadasController extends HttpServlet {
         vendasProgramadasService = new VendasProgramadasService(servletContext);
 
         gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>) (src, typeOfSrc, context) ->
-                        new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, typeOfT, context) -> {
-                    try {
-                        return LocalDate.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE);
-                    } catch (Exception e) {
-                        throw new JsonParseException("Erro" + json.getAsString(), e);
-                    }
-                })
-                .setPrettyPrinting().create();
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .create();
     }
 
     private void setCorsHeaders(HttpServletResponse resp) {
@@ -95,9 +88,9 @@ public class VendasProgramadasController extends HttpServlet {
             JsonObject error = new JsonObject();
             error.addProperty("error", "Erro ao adicionar venda programada: " + e.getMessage());
             out.println(gson.toJson(error));
-        } finally {
-            out.flush();
         }
+
+        out.flush();
     }
 
     @Override

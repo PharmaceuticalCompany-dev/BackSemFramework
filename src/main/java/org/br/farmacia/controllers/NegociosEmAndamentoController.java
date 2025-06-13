@@ -49,7 +49,7 @@ public class NegociosEmAndamentoController extends HttpServlet {
         negocio.setStatus(input.status);
         service.adicionarNegocio(negocio);
 
-        out.println(gson.toJson("Produto cadastrado com sucesso!"));
+        out.println(gson.toJson("Negocio em andamento cadastrado com sucesso!"));
         out.flush();
     }
 

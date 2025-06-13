@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS SETOR (
 CREATE TABLE IF NOT EXISTS funcionario (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    dataNascimento DATE,
+    dataNascimento DATE NOT NULL,
     genero VARCHAR(50),
     cargo VARCHAR(50),
     salario DOUBLE PRECISION NOT NULL,

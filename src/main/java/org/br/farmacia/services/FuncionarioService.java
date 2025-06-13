@@ -1,5 +1,6 @@
 package org.br.farmacia.services;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.br.farmacia.enums.TipoSetor;
 import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.models.Setor;
 import org.br.farmacia.repositories.FuncionarioRepository;
+import org.br.farmacia.repositories.SetorRepository;
 
 import javax.servlet.ServletContext;
 
@@ -15,11 +17,11 @@ public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
 
-    // private final SetorRepository setorRepository;
+    //private final SetorRepository setorRepository;
 
     public FuncionarioService(ServletContext context) {
         this.funcionarioRepository = new FuncionarioRepository(context);
-        // this.setorRepository = new SetorRepository(context);
+        //this.setorRepository = new SetorRepository((Connection) context);
     }
 
     public void inicializarFuncionario(Funcionario funcionario) {
