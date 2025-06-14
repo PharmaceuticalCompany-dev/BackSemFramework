@@ -28,15 +28,68 @@ public class FuncionarioService {
         funcionario.setSetor(definirSetorPorCargo(funcionario.getCargo()));
         calcularEAtribuirBeneficiosPorCargo(funcionario);
 
-        if (funcionario.getCargo() == Cargo.GERENTE) {
-            funcionario.setBonificacao(funcionario.getSalario() * 0.10);
-        } else {
-           //TERMINAR DPS
+        switch (funcionario.getCargo()) {
+            case GERENTE:
+                funcionario.setBonificacao(funcionario.getSalario() * 0.10);
+                break;
+            case ATENDENTE:
+                funcionario.setBonificacao(funcionario.getSalario() * 0.02);
+                break;
+            case RH:
+                funcionario.setBonificacao(funcionario.getSalario() * 0.05);
+                break;
+            case FINANCEIRO:
+                funcionario.setBonificacao(funcionario.getSalario() * 0.04);
+                break;
+            case VENDEDOR:
+                funcionario.setBonificacao(funcionario.getSalario() * 0.06);
+                break;
+            case ALMOXARIFE:
+                funcionario.setBonificacao(funcionario.getSalario() * 0.03);
+                break;
+            case MOTORISTA:
+                funcionario.setBonificacao(funcionario.getSalario() * 0.025);
+                break;
+            default:
+                funcionario.setBonificacao(0);
+                break;
         }
 
-        //if
+        calculaIRRF(funcionario);
+
 
     }
+
+    public void calculaIRRF(Funcionario funcionario) {
+        double salario = funcionario.getSalario();
+        double aliquota = 0;
+        double deducao = 0;
+
+        if (salario <= 2428.80) {
+            aliquota = 0;
+            deducao = 0;
+        } else if (salario <= 2826.65) {
+            aliquota = 7.5;
+            deducao = 182.16;
+        } else if (salario <= 3751.05) {
+            aliquota = 15.0;
+            deducao = 394.16;
+        } else if (salario <= 4664.68) {
+            aliquota = 22.5;
+            deducao = 675.49;
+        } else {
+            aliquota = 27.5;
+            deducao = 908.75;
+        }
+
+        funcionario.setPercentualIrrf(aliquota);
+
+        double valorIRRF = (salario * (aliquota / 100)) - deducao;
+        if (valorIRRF < 0) {
+            valorIRRF = 0;
+        }
+    }
+
 
     public boolean adicionarFuncionario(Funcionario funcionario) {
         if (funcionario != null) {
