@@ -55,10 +55,12 @@ public class TransportadoraController extends HttpServlet {
         Transportadora novaTransportadora = new Transportadora(
                 input.id,
                 input.nome,
-                new ArrayList<>(input.locaisAtendimento)
+                input.contato,
+                input.telefone,
+                input.regiao
         );
 
-        novaTransportadora.setEmpresaId(input.empresaId);
+
 
         transportadoraService.adicionarTransportadora(novaTransportadora);
 
@@ -66,15 +68,79 @@ public class TransportadoraController extends HttpServlet {
         json.addProperty("message", "Transportadora adicionada com sucesso");
         out.println(gson.toJson(json));
 
+        out.flush();
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        setCorsHeaders(resp);
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
+        TransportadoraInput input = gson.fromJson(req.getReader(), TransportadoraInput.class);
+
+        Transportadora transportadoraAtualizada = new Transportadora(
+                input.id,
+                input.nome,
+                input.contato,
+                input.telefone,
+                input.regiao
+        );
+
+
+        boolean sucesso = transportadoraService.editarTransportadora(input.id, transportadoraAtualizada);
+
+        JsonObject json = new JsonObject();
+        if (sucesso) {
+            json.addProperty("message", "Transportadora atualizada com sucesso");
+        } else {
+            json.addProperty("message", "Transportadora não encontrada");
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+
+        out.println(gson.toJson(json));
+        out.flush();
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        setCorsHeaders(resp);
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
+        TransportadoraInput input = gson.fromJson(req.getReader(), TransportadoraInput.class);
+
+        boolean sucesso = transportadoraService.removerTransportadora(input.id);
+
+        JsonObject json = new JsonObject();
+        if (sucesso) {
+            json.addProperty("message", "Transportadora deletada com sucesso");
+            resp.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            json.addProperty("message", "Transportadora não encontrada");
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+
+        out.println(gson.toJson(json));
 
         out.flush();
+
+
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        setCorsHeaders(resp);
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 
 
     private static class TransportadoraInput {
         int id;
         String nome;
-        List<String> locaisAtendimento;
+        String contato;
+        String telefone;
+        String regiao;
         Integer empresaId;
     }
 

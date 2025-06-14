@@ -70,11 +70,7 @@ public class FuncionarioRepository {
             ps.setString(3, funcionario.getGenero().name());
             ps.setString(4, funcionario.getCargo().name());
             ps.setDouble(5, funcionario.getSalario());
-            if (funcionario.getSetor() != null && funcionario.getSetor().getId() > 0) {
-                ps.setInt(6, funcionario.getSetor().getId());
-            } else {
-                ps.setNull(6, Types.INTEGER);
-            }
+            ps.setInt(6, funcionario.getSetorId());
             ps.setDouble(7, funcionario.getValeRefeicao());
             ps.setDouble(8, funcionario.getValeAlimentacao());
             ps.setDouble(9, funcionario.getPlanoSaude());

@@ -20,62 +20,45 @@ public class TransportadoraRepository {
 
     public Transportadora findById(int id) {
         Transportadora transportadora = null;
-        String sql = "SELECT ID, NOME, LOCAIS_ATENDIMENTO, EMPRESA_ID FROM TRANSPORTADORA WHERE ID = ?";
+        String sql = "SELECT * FROM TRANSPORTADORA WHERE ID = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                transportadora = new Transportadora();
-                transportadora.setId(rs.getInt("ID"));
-                transportadora.setNome(rs.getString("NOME"));
-
-                String locaisString = rs.getString("LOCAIS_ATENDIMENTO");
-                ArrayList<String> locaisAtendimento = new ArrayList<>();
-                if (locaisString != null && !locaisString.trim().isEmpty()) {
-                    locaisAtendimento.addAll(Arrays.asList(locaisString.split(",")));
-                }
-                transportadora.setLocaisAtendimento(locaisAtendimento);
+                return mapResultSetToTransportadora(rs);
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar transportadora por ID: " + e.getMessage());
             e.printStackTrace();
         }
-        return transportadora;
+        return null;
     }
 
     public boolean save(Transportadora transportadora) {
-        String sql = "INSERT INTO TRANSPORTADORA (NOME, LOCAIS_ATENDIMENTO, EMPRESA_ID) VALUES (?, ?, ?)";
-        int affectedRows = 0;
-        try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        String sql = "INSERT INTO TRANSPORTADORA (NOME, CONTATO, TELEFONE, REGIAO) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, transportadora.getNome());
-            ps.setString(2, String.join(",", transportadora.getLocaisAtendimento()));
-            ps.setObject(3, transportadora.getEmpresaId());
-
-            affectedRows = ps.executeUpdate();
-
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        transportadora.setId(generatedKeys.getInt(1));
-                    }
-                }
-            }
+            ps.setString(2, String.join(",", transportadora.getContato()));
+            ps.setString(3, transportadora.getTelefone());
+            ps.setString(4, transportadora.getRegiao());
+            return ps.executeUpdate() == 1;
         } catch (SQLException e) {
-            System.err.println("Erro ao salvar transportadora: " + e.getMessage());
             e.printStackTrace();
         }
-        return affectedRows > 0;
+        return false;
     }
 
     public boolean update(Transportadora transportadora) {
-        String sql = "UPDATE TRANSPORTADORA SET NOME = ?, LOCAIS_ATENDIMENTO = ? WHERE ID = ?";
+        String sql = "UPDATE TRANSPORTADORA SET NOME = ?, CONTATO = ?, TELEFONE = ?, REGIAO = ? WHERE ID = ?";
         int affectedRows = 0;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, transportadora.getNome());
-            ps.setString(2, String.join(",", transportadora.getLocaisAtendimento()));
-            ps.setInt(3, transportadora.getId());
+            ps.setString(2, String.join(",", transportadora.getContato()));
+            ps.setString(3, transportadora.getTelefone());
+            ps.setString(4, transportadora.getRegiao());
+            ps.setInt(5, transportadora.getEmpresaId());
+            ps.setInt(6, transportadora.getId());
             affectedRows = ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Erro ao atualizar transportadora: " + e.getMessage());
@@ -99,30 +82,29 @@ public class TransportadoraRepository {
 
     public List<Transportadora> findAll() {
         List<Transportadora> transportadoras = new ArrayList<>();
-        String sql = "SELECT ID, NOME, LOCAIS_ATENDIMENTO, EMPRESA_ID FROM TRANSPORTADORA";
+        String sql = "SELECT ID, NOME, CONTATO, TELEFONE, REGIAO FROM TRANSPORTADORA";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Transportadora transportadora = new Transportadora();
-                transportadora.setId(rs.getInt("ID"));
-                transportadora.setNome(rs.getString("NOME"));
-
-                String locaisString = rs.getString("LOCAIS_ATENDIMENTO");
-                ArrayList<String> locaisAtendimento = new ArrayList<>();
-                if (locaisString != null && !locaisString.trim().isEmpty()) {
-                    locaisAtendimento.addAll(Arrays.asList(locaisString.split(",")));
-                }
-                transportadora.setLocaisAtendimento(locaisAtendimento);
-
-                transportadoras.add(transportadora);
+                transportadoras.add(mapResultSetToTransportadora(rs));
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar todas as transportadoras: " + e.getMessage());
             e.printStackTrace();
         }
         return transportadoras;
+    }
+
+
+    private Transportadora mapResultSetToTransportadora(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        String nome = rs.getString("nome");
+        String contato  = rs.getString("contato");
+        String telefone  = rs.getString("telefone");
+        String regiao   = rs.getString("regiao");
+
+        return new Transportadora(id, nome, contato, telefone, regiao);
     }
 
 }

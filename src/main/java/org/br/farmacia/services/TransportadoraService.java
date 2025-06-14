@@ -25,11 +25,8 @@ public class TransportadoraService {
         return false;
     }
 
-    public boolean removerTransportadora(Transportadora transportadora) {
-        if (transportadora != null) {
-            return transportadoras.remove(transportadora);
-        }
-        return false;
+    public boolean removerTransportadora(int id) {
+       return transportadoraRepository.delete(id);
     }
 
     public boolean editarTransportadora(int id, Transportadora transportadora) {
@@ -37,13 +34,16 @@ public class TransportadoraService {
 
         if (existente != null) {
             existente.setNome(transportadora.getNome());
-            existente.setLocaisAtendimento(transportadora.getLocaisAtendimento());
+            existente.setContato(transportadora.getContato());
+            existente.setTelefone(transportadora.getTelefone());
+            existente.setRegiao(transportadora.getRegiao());
 
             return transportadoraRepository.update(existente);
         }
 
         return false;
     }
+
 
 
     public List<Transportadora> listarTransportadoras() {
