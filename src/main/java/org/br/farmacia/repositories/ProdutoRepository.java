@@ -24,6 +24,7 @@ public class ProdutoRepository {
                 return mapResultSetToProduto(rs);
             }
         } catch (SQLException e) {
+            System.err.println("Erro ao buscar produto por ID: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -38,23 +39,38 @@ public class ProdutoRepository {
                 lista.add(mapResultSetToProduto(rs));
             }
         } catch (SQLException e) {
+            System.err.println("Erro ao listar todos os produtos: " + e.getMessage());
             e.printStackTrace();
         }
         return lista;
     }
 
-    public boolean save(Produto produto) {
+    // --- MUDANÇA PRINCIPAL AQUI: O método 'save' agora retorna o Produto com o ID gerado ---
+    public Produto save(Produto produto) {
+        // Remove 'id' da query INSERT. O banco de dados irá auto-gerar.
         String sql = "INSERT INTO produto (nome, preco_compra, preco_venda, quantidade_estoque) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, produto.getNome());
             ps.setDouble(2, produto.getPrecoCompra());
             ps.setDouble(3, produto.getPrecoVenda());
             ps.setInt(4, produto.getQuantidadeEstoque());
-            return ps.executeUpdate() == 1;
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows == 1) {
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int generatedId = generatedKeys.getInt(1);
+                        produto.setId(generatedId); // Define o ID gerado no objeto Produto
+                        return produto; // Retorna o produto com o ID atualizado
+                    }
+                }
+            }
         } catch (SQLException e) {
+            System.err.println("Erro ao salvar produto: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return null; // Retorna null em caso de falha
     }
 
     public boolean update(Produto produto) {
@@ -67,6 +83,7 @@ public class ProdutoRepository {
             ps.setInt(5, produto.getId());
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
+            System.err.println("Erro ao atualizar produto: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -78,6 +95,7 @@ public class ProdutoRepository {
             ps.setInt(1, id);
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
+            System.err.println("Erro ao deletar produto: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -90,6 +108,7 @@ public class ProdutoRepository {
         double precoVenda = rs.getDouble("preco_venda");
         int quantidadeEstoque = rs.getInt("quantidade_estoque");
 
+        // Certifique-se de que o construtor de Produto em Produto.java aceita esses parâmetros
         return new Produto(id, nome, precoCompra, precoVenda, quantidadeEstoque);
     }
 }

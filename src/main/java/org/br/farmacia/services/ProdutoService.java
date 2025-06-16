@@ -1,6 +1,5 @@
 package org.br.farmacia.services;
 
-import org.br.farmacia.models.Funcionario;
 import org.br.farmacia.models.Produto;
 import org.br.farmacia.repositories.ProdutoRepository;
 
@@ -15,11 +14,11 @@ public class ProdutoService {
         this.produtoRepository = new ProdutoRepository(context);
     }
 
-    public boolean adicionarProduto(Produto produto) {
+    public Produto adicionarProduto(Produto produto) {
         if (produto != null) {
             return produtoRepository.save(produto);
         }
-        return false;
+        return null;
     }
 
     public boolean removerProduto(int id) {

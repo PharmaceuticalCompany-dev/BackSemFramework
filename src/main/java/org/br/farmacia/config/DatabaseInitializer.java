@@ -87,7 +87,7 @@ public class DatabaseInitializer implements ServletContextListener {
                     produtosExistem = rs.getInt(1) > 0;
                 }
             }
-            if (!produtosExistem) {
+            /*if (!produtosExistem) {
                 try (Statement stmt = connection.createStatement()) {
                     String insertSql = "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (1, 'Vitamina D', 20.00, 39.00, 100, 1); " +
                             "INSERT INTO PRODUTO (ID, NOME, PRECO_COMPRA, PRECO_VENDA, QUANTIDADE_ESTOQUE, EMPRESA_ID) VALUES (2, 'Vitamina C', 15.00, 29.00, 200, 1); " +
@@ -102,7 +102,7 @@ public class DatabaseInitializer implements ServletContextListener {
 
                     stmt.executeUpdate(insertSql);
                 }
-            }
+            }*/
 
             ServletContext context = sce.getServletContext();
             context.setAttribute("DBConnection", connection);

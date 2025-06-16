@@ -30,6 +30,8 @@ public class TransacaoController extends HttpServlet {
         caixaServices = new CaixaServices(getServletContext());
     }
 
+
+
     private void setCorsHeaders(HttpServletResponse resp) {
         resp.setHeader("Access-Control-Allow-Origin", "*");
         resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -85,6 +87,13 @@ public class TransacaoController extends HttpServlet {
             out.println(gson.toJson("Erro ao registrar a transação."));
         }
         out.flush();
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.getWriter().flush();
     }
 
     private static class TransacaoInput {

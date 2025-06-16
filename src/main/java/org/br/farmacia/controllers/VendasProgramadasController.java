@@ -59,26 +59,69 @@ public class VendasProgramadasController extends HttpServlet {
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
-        VendasProgramadasInput input = gson.fromJson(req.getReader(), VendasProgramadasInput.class);
+        try {
+            VendasProgramadasInput input = gson.fromJson(req.getReader(), VendasProgramadasInput.class);
 
-        VendasProgramadas novaVenda = new VendasProgramadas(
-                input.id,
-                LocalDate.parse(input.dataVenda, DateTimeFormatter.ISO_LOCAL_DATE),
-                input.produtoId,
-                input.quantidade,
-                false,
-                input.empresaId
-        );
+            // Verificações básicas
+            if (input == null) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println("{\"error\": \"Dados de entrada inválidos.\"}");
+                return;
+            }
 
-        vendasProgramadasService.adicionarVendaProgramada(novaVenda);
+            if (input.dataVenda == null || input.dataVenda.isEmpty()) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println("{\"error\": \"O campo dataVenda é obrigatório.\"}");
+                return;
+            }
 
-        JsonObject json = new JsonObject();
-        json.addProperty("message", "Venda programada adicionada com sucesso!");
-        resp.setStatus(HttpServletResponse.SC_CREATED);
-        out.println(gson.toJson(json));
+            if (input.produtoId <= 0) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println("{\"error\": \"O campo produtoId deve ser maior que zero.\"}");
+                return;
+            }
 
-        out.flush();
+            if (input.quantidade <= 0) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println("{\"error\": \"A quantidade deve ser maior que zero.\"}");
+                return;
+            }
+
+            LocalDate dataVenda;
+            try {
+                dataVenda = LocalDate.parse(input.dataVenda, DateTimeFormatter.ISO_LOCAL_DATE);
+            } catch (Exception e) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println("{\"error\": \"Formato de data inválido. Use o padrão yyyy-MM-dd.\"}");
+                return;
+            }
+
+            // Criação da nova venda
+            VendasProgramadas novaVenda = new VendasProgramadas(
+                    input.id,
+                    dataVenda,
+                    input.produtoId,
+                    input.quantidade,
+                    false,
+                    1
+            );
+
+            vendasProgramadasService.adicionarVendaProgramada(novaVenda);
+
+            JsonObject json = new JsonObject();
+            json.addProperty("message", "Venda programada adicionada com sucesso!");
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            out.println(gson.toJson(json));
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "Erro ao processar a requisição: " + e.getMessage());
+            out.println(gson.toJson(error));
+        } finally {
+            out.flush();
+        }
     }
+
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

@@ -21,8 +21,17 @@ public class ConcluirVendaProgramadaController extends HttpServlet {
         service = new VendasProgramadasService(getServletContext());
     }
 
+    private void setCorsHeaders(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        resp.setHeader("Access-Control-Max-Age", "3600");
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
+
         Gson gson = new Gson();
         JsonObject jsonObject = gson.fromJson(req.getReader(), JsonObject.class);
 
@@ -44,5 +53,10 @@ public class ConcluirVendaProgramadaController extends HttpServlet {
         writer.flush();
     }
 
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.getWriter().flush();
+    }
 }
-

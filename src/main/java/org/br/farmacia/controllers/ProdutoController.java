@@ -1,7 +1,7 @@
 package org.br.farmacia.controllers;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonObject; // Mantido, mas não usado diretamente para sucesso
 import org.br.farmacia.models.Produto;
 import org.br.farmacia.services.ProdutoService;
 
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-@WebServlet("/produtos")
+@WebServlet("/produtos/*")
 public class ProdutoController extends HttpServlet {
 
     private ProdutoService produtoService;
@@ -36,6 +36,8 @@ public class ProdutoController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setCorsHeaders(resp);
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
         List<Produto> produtos = produtoService.listarProdutos();
         resp.getWriter().println(gson.toJson(produtos));
     }
@@ -44,42 +46,132 @@ public class ProdutoController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setCorsHeaders(resp);
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
 
-        ProdutoInput input = gson.fromJson(req.getReader(), ProdutoInput.class);
-        Produto novoProduto = new Produto(input.nome, input.precoCompra, input.precoVenda, input.quantidadeEstoque);
-        produtoService.adicionarProduto(novoProduto);
+        req.setCharacterEncoding("UTF-8");
 
-        out.println(gson.toJson("Produto cadastrado com sucesso!"));
-        out.flush();
+        try {
+            ProdutoInput input = gson.fromJson(req.getReader(), ProdutoInput.class);
+
+            Produto novoProduto = new Produto(input.nome, input.precoCompra, input.precoVenda, input.quantidadeEstoque);
+
+            Produto produtoSalvo = produtoService.adicionarProduto(novoProduto);
+
+            if (produtoSalvo != null) {
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+                out.println(gson.toJson(produtoSalvo));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.println(gson.toJson("Erro ao cadastrar produto."));
+            }
+        } catch (Exception e) {
+            System.err.println("Erro no doPost (adicionar produto): " + e.getMessage());
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println(gson.toJson("Erro na requisição: " + e.getMessage()));
+        } finally {
+            out.flush();
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
 
-        ProdutoInput input = gson.fromJson(req.getReader(), ProdutoInput.class);
-        Produto produto = new Produto(input.id, input.nome, input.precoCompra, input.precoVenda, input.quantidadeEstoque);
-        produtoService.editarProduto(input.id, produto);
+        req.setCharacterEncoding("UTF-8");
+
+        try {
+            String pathInfo = req.getPathInfo();
+            int id = -1;
+            if (pathInfo != null && pathInfo.length() > 1) {
+                id = Integer.parseInt(pathInfo.substring(1));
+            }
+
+            if (id == -1) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println(gson.toJson("ID do produto não fornecido na URL."));
+                return;
+            }
+
+            ProdutoInput input = gson.fromJson(req.getReader(), ProdutoInput.class);
+            Produto produtoParaAtualizar = new Produto(id, input.nome, input.precoCompra, input.precoVenda, input.quantidadeEstoque);
+
+            boolean sucesso = produtoService.editarProduto(id, produtoParaAtualizar);
+
+            if (sucesso) {
+                resp.setStatus(HttpServletResponse.SC_OK); // 200 OK
+                out.println(gson.toJson("Produto editado com sucesso!"));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                out.println(gson.toJson("Erro ao editar produto ou produto não encontrado."));
+            }
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println(gson.toJson("ID do produto inválido na URL."));
+        } catch (Exception e) {
+            System.err.println("Erro no doPut (editar produto): " + e.getMessage());
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println(gson.toJson("Erro na requisição: " + e.getMessage()));
+        } finally {
+            out.flush();
+        }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setCorsHeaders(resp);
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
 
-        int id = Integer.parseInt(req.getParameter("id"));
-        produtoService.removerProduto(id);
+        try {
+            String pathInfo = req.getPathInfo();
+            int id = -1;
+            if (pathInfo != null && pathInfo.length() > 1) {
+                id = Integer.parseInt(pathInfo.substring(1)); // Remove a '/' inicial
+            }
 
-        out.println(gson.toJson("Produto removido com sucesso!"));
-        out.flush();
+            if (id == -1) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println(gson.toJson("ID do produto não fornecido na URL."));
+                return;
+            }
+
+            boolean sucesso = produtoService.removerProduto(id);
+
+            if (sucesso) {
+                resp.setStatus(HttpServletResponse.SC_OK); // 200 OK
+                out.println(gson.toJson("Produto removido com sucesso!"));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND); // 404 Not Found
+                out.println(gson.toJson("Produto não encontrado para remoção."));
+            }
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println(gson.toJson("ID do produto inválido na URL."));
+        } catch (Exception e) {
+            System.err.println("Erro no doDelete (remover produto): " + e.getMessage());
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.println(gson.toJson("Erro interno ao remover produto: " + e.getMessage()));
+        } finally {
+            out.flush();
+        }
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        setCorsHeaders(resp);
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 
 
     private static class ProdutoInput {
-        int id;
         String nome;
         double precoCompra;
         double precoVenda;
