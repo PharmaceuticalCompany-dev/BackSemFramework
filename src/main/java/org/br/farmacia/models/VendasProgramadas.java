@@ -7,6 +7,7 @@ public class VendasProgramadas {
     private LocalDate dataVenda;
     private int produtoId;
     private Integer empresaId;
+    private int quantidade;
 
     private double valorVendaCalculado;
     private double custoProdutoCalculado;
@@ -14,11 +15,20 @@ public class VendasProgramadas {
     public VendasProgramadas() {
     }
 
-    public VendasProgramadas(int id, LocalDate dataVenda, int produtoId, Integer empresaId) {
+    public VendasProgramadas(int id, LocalDate dataVenda, int produtoId, int quantidade, Integer empresaId) {
         this.id = id;
         this.dataVenda = dataVenda;
         this.produtoId = produtoId;
         this.empresaId = empresaId;
+        this.quantidade = quantidade;
+    }
+
+    public int getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
     }
 
     public int getId() {
@@ -42,7 +52,7 @@ public class VendasProgramadas {
     }
 
     public void setValorVendaCalculado(double valorVendaCalculado) {
-        this.valorVendaCalculado = valorVendaCalculado;
+        this.valorVendaCalculado = valorVendaCalculado  * getQuantidade();
     }
 
     public double getCustoProdutoCalculado() {
@@ -50,7 +60,7 @@ public class VendasProgramadas {
     }
 
     public void setCustoProdutoCalculado(double custoProdutoCalculado) {
-        this.custoProdutoCalculado = custoProdutoCalculado;
+        this.custoProdutoCalculado = custoProdutoCalculado  * getQuantidade();
     }
 
     public double getLucro() {

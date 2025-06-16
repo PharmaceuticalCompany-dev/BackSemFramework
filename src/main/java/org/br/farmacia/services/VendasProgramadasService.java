@@ -6,6 +6,7 @@ import org.br.farmacia.repositories.ProdutoRepository;
 import org.br.farmacia.repositories.VendasProgramadasRepository;
 
 import javax.servlet.ServletContext;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,46 @@ public class VendasProgramadasService {
         }
         return false;
     }
+
+    public double somarVendasDoMes(int mes, int ano) {
+        double soma = 0.0;
+
+        for (VendasProgramadas venda : vendasProgramadasRepository.findAll()) {
+            LocalDate data = venda.getDataVenda();
+            if (data.getMonthValue() == mes && data.getYear() == ano) {
+                soma += venda.getValorVendaCalculado();
+            }
+        }
+
+        return soma;
+    }
+
+    public double somarVendasMesAtual() {
+        LocalDate hoje = LocalDate.now();
+        return somarVendasDoMes(hoje.getMonthValue(), hoje.getYear());
+    }
+
+
+    public double estimarLucroAnualPorMediaMensal() {
+        LocalDate hoje = LocalDate.now();
+        int anoAtual = hoje.getYear();
+        int mesAtual = hoje.getMonthValue();
+
+        double somaLucroMesesPassados = 0.0;
+
+        for (int mes = 1; mes <= mesAtual; mes++) {
+            somaLucroMesesPassados += somarVendasDoMes(mes, anoAtual);
+        }
+
+        double mediaMensal = somaLucroMesesPassados / mesAtual;
+        double estimativaLucroAnual = mediaMensal * 12;
+
+        return estimativaLucroAnual;
+    }
+
+
+
+
 
     public boolean removerVendaProgramada(int id) {
         return vendasProgramadasRepository.delete(id);
@@ -56,43 +97,27 @@ public class VendasProgramadasService {
         return vendasProgramadas;
     }
 
-    public List<VendasProgramadas> buscarPorMesEAno(int mes, int ano) {
-        List<VendasProgramadas> resultado = new ArrayList<>();
-        for (VendasProgramadas v : listar()) {
-            if (v.getMes() == mes && v.getAno() == ano) {
-                resultado.add(v);
-            }
-        }
-        return resultado;
-    }
-
-    public double calcularLucroAnual(int ano) {
-        double lucroTotal = 0.0;
-        for (VendasProgramadas v : listar()) {
-            if (v.getAno() == ano) {
-                lucroTotal += v.getLucro();
-            }
-        }
-        return lucroTotal;
-    }
-
-    public double calcularCustoAnual(int ano) {
+    public double calcularCustoAnual() {
+        int anoAtual = LocalDate.now().getYear();
         double custoTotal = 0.0;
         for (VendasProgramadas v : listar()) {
-            if (v.getAno() == ano) {
+            if (v.getAno() == anoAtual) {
                 custoTotal += v.getCustoProdutoCalculado();
             }
         }
         return custoTotal;
     }
 
-    public double calcularRendimentoAnual(int ano) {
+
+    public double calcularRendimentoAnual() {
+        int anoAtual = LocalDate.now().getYear();
         double rendimentoTotal = 0.0;
         for (VendasProgramadas v : listar()) {
-            if (v.getAno() == ano) {
+            if (v.getAno() == anoAtual) {
                 rendimentoTotal += v.getValorVendaCalculado();
             }
         }
         return rendimentoTotal;
     }
+
 }
