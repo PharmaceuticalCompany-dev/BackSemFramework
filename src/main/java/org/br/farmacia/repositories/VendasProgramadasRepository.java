@@ -1,6 +1,7 @@
 package org.br.farmacia.repositories;
 
 import org.br.farmacia.models.VendasProgramadas;
+import org.br.farmacia.models.Produto;
 
 import javax.servlet.ServletContext;
 import java.sql.*;
@@ -11,14 +12,16 @@ import java.util.List;
 public class VendasProgramadasRepository {
 
     private final Connection connection;
+    private final ProdutoRepository produtoRepository;
 
     public VendasProgramadasRepository(ServletContext context) {
         this.connection = (Connection) context.getAttribute("DBConnection");
+        this.produtoRepository = new ProdutoRepository(context);
     }
 
     public VendasProgramadas findById(int id) {
         VendasProgramadas vendasProgramadas = null;
-        String sql = "SELECT ID, DATA_VENDA, VALOR_VENDA, CUSTO_PRODUTO, PRODUTO_ID, EMPRESA_ID FROM VENDAS_PROGRAMADAS WHERE ID = ?";
+        String sql = "SELECT ID, DATA_VENDA, PRODUTO_ID, EMPRESA_ID FROM VENDAS_PROGRAMADAS WHERE ID = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -27,10 +30,14 @@ public class VendasProgramadasRepository {
                     vendasProgramadas = new VendasProgramadas();
                     vendasProgramadas.setId(rs.getInt("ID"));
                     vendasProgramadas.setDataVenda(rs.getDate("DATA_VENDA").toLocalDate());
-                    vendasProgramadas.setValorVenda(rs.getDouble("VALOR_VENDA"));
-                    vendasProgramadas.setCustoProduto(rs.getDouble("CUSTO_PRODUTO"));
                     vendasProgramadas.setProdutoId(rs.getInt("PRODUTO_ID"));
                     vendasProgramadas.setEmpresaId(rs.getInt("EMPRESA_ID"));
+
+                    Produto produto = produtoRepository.findById(vendasProgramadas.getProdutoId());
+                    if (produto != null) {
+                        vendasProgramadas.setValorVendaCalculado(produto.getPrecoVenda());
+                        vendasProgramadas.setCustoProdutoCalculado(produto.getPrecoCompra());
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -40,16 +47,13 @@ public class VendasProgramadasRepository {
         return vendasProgramadas;
     }
 
-
     public boolean save(VendasProgramadas vendasProgramadas) {
-        String sql = "INSERT INTO VENDAS_PROGRAMADAS (DATA_VENDA, VALOR_VENDA, CUSTO_PRODUTO, PRODUTO_ID, EMPRESA_ID) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO VENDAS_PROGRAMADAS (DATA_VENDA, PRODUTO_ID, EMPRESA_ID) VALUES (?, ?, ?)";
         int affectedRows = 0;
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setDate(1, Date.valueOf(vendasProgramadas.getDataVenda()));
-            ps.setDouble(2, vendasProgramadas.getValorVenda());
-            ps.setDouble(3, vendasProgramadas.getCustoProduto());
-            ps.setInt(4, vendasProgramadas.getProdutoId());
-            ps.setObject(5, vendasProgramadas.getEmpresaId());
+            ps.setInt(2, vendasProgramadas.getProdutoId());
+            ps.setObject(3, vendasProgramadas.getEmpresaId());
 
             affectedRows = ps.executeUpdate();
 
@@ -67,16 +71,14 @@ public class VendasProgramadasRepository {
         return affectedRows > 0;
     }
 
-
     public boolean update(VendasProgramadas vendasProgramadas) {
-        String sql = "UPDATE VENDAS_PROGRAMADAS SET DATA_VENDA, VALOR_VENDA, CUSTO_PRODUTO, PRODUTO_ID, EMPRESA_ID WHERE ID = ?";
+        String sql = "UPDATE VENDAS_PROGRAMADAS SET DATA_VENDA = ?, PRODUTO_ID = ?, EMPRESA_ID = ? WHERE ID = ?";
         int affectedRows = 0;
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(vendasProgramadas.getDataVenda()));
-            ps.setDouble(2, vendasProgramadas.getValorVenda());
-            ps.setDouble(3, vendasProgramadas.getCustoProduto());
-            ps.setInt(4, vendasProgramadas.getProdutoId());
-            ps.setInt(5, vendasProgramadas.getEmpresaId());
+            ps.setInt(2, vendasProgramadas.getProdutoId());
+            ps.setObject(3, vendasProgramadas.getEmpresaId());
+            ps.setInt(4, vendasProgramadas.getId());
             affectedRows = ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Erro ao atualizar venda programada: " + e.getMessage());
@@ -84,7 +86,6 @@ public class VendasProgramadasRepository {
         }
         return affectedRows > 0;
     }
-
 
     public boolean delete(int id) {
         String sql = "DELETE FROM VENDAS_PROGRAMADAS WHERE ID = ?";
@@ -99,10 +100,9 @@ public class VendasProgramadasRepository {
         return affectedRows > 0;
     }
 
-
     public List<VendasProgramadas> findAll() {
         List<VendasProgramadas> vendasProgramadas = new ArrayList<>();
-        String sql = "SELECT ID, DATA_VENDA, VALOR_VENDA, CUSTO_PRODUTO, PRODUTO_ID, EMPRESA_ID FROM VENDAS_PROGRAMADAS";
+        String sql = "SELECT ID, DATA_VENDA, PRODUTO_ID, EMPRESA_ID FROM VENDAS_PROGRAMADAS";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
@@ -110,10 +110,14 @@ public class VendasProgramadasRepository {
                     VendasProgramadas vendaProgramada = new VendasProgramadas();
                     vendaProgramada.setId(rs.getInt("ID"));
                     vendaProgramada.setDataVenda(rs.getDate("DATA_VENDA").toLocalDate());
-                    vendaProgramada.setValorVenda(rs.getDouble("VALOR_VENDA"));
-                    vendaProgramada.setCustoProduto(rs.getDouble("CUSTO_PRODUTO"));
                     vendaProgramada.setProdutoId(rs.getInt("PRODUTO_ID"));
                     vendaProgramada.setEmpresaId(rs.getInt("EMPRESA_ID"));
+
+                    Produto produto = produtoRepository.findById(vendaProgramada.getProdutoId());
+                    if (produto != null) {
+                        vendaProgramada.setValorVendaCalculado(produto.getPrecoVenda());
+                        vendaProgramada.setCustoProdutoCalculado(produto.getPrecoCompra());
+                    }
                     vendasProgramadas.add(vendaProgramada);
                 }
             }

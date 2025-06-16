@@ -3,11 +3,6 @@ package org.br.farmacia.controllers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonSerializer;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonParseException;
-
 import org.br.farmacia.models.VendasProgramadas;
 import org.br.farmacia.services.VendasProgramadasService;
 import org.br.farmacia.util.LocalDateAdapter;
@@ -64,31 +59,21 @@ public class VendasProgramadasController extends HttpServlet {
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
-        try {
-            VendasProgramadasInput input = gson.fromJson(req.getReader(), VendasProgramadasInput.class);
+        VendasProgramadasInput input = gson.fromJson(req.getReader(), VendasProgramadasInput.class);
 
-            VendasProgramadas novaVenda = new VendasProgramadas(
-                    input.id,
-                    LocalDate.parse(input.dataVenda, DateTimeFormatter.ISO_LOCAL_DATE),
-                    input.valorVenda,
-                    input.custoProduto,
-                    input.produtoId,
-                    input.empresaId
-            );
+        VendasProgramadas novaVenda = new VendasProgramadas(
+                input.id,
+                LocalDate.parse(input.dataVenda, DateTimeFormatter.ISO_LOCAL_DATE),
+                input.produtoId,
+                input.empresaId
+        );
 
-            vendasProgramadasService.adicionarVendaProgramada(novaVenda);
+        vendasProgramadasService.adicionarVendaProgramada(novaVenda);
 
-            JsonObject json = new JsonObject();
-            json.addProperty("message", "Venda programada adicionada com sucesso!");
-            resp.setStatus(HttpServletResponse.SC_CREATED);
-            out.println(gson.toJson(json));
-
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JsonObject error = new JsonObject();
-            error.addProperty("error", "Erro ao adicionar venda programada: " + e.getMessage());
-            out.println(gson.toJson(error));
-        }
+        JsonObject json = new JsonObject();
+        json.addProperty("message", "Venda programada adicionada com sucesso!");
+        resp.setStatus(HttpServletResponse.SC_CREATED);
+        out.println(gson.toJson(json));
 
         out.flush();
     }
@@ -98,9 +83,35 @@ public class VendasProgramadasController extends HttpServlet {
         setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
-        JsonObject json = new JsonObject();
-        json.addProperty("message", "Método PUT não implementado ainda.");
-        out.println(gson.toJson(json));
+
+        VendasProgramadasInput input = gson.fromJson(req.getReader(), VendasProgramadasInput.class);
+
+        if (input.id == 0) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "ID da venda programada é obrigatório para atualização.");
+            out.println(gson.toJson(error));
+            return;
+        }
+
+        VendasProgramadas vendaParaAtualizar = new VendasProgramadas(
+                input.id,
+                LocalDate.parse(input.dataVenda, DateTimeFormatter.ISO_LOCAL_DATE),
+                input.produtoId,
+                input.empresaId
+        );
+
+        if (vendasProgramadasService.editarVendaProgramada(input.id, vendaParaAtualizar)) {
+            JsonObject json = new JsonObject();
+            json.addProperty("message", "Venda programada atualizada com sucesso!");
+            resp.setStatus(HttpServletResponse.SC_OK);
+            out.println(gson.toJson(json));
+        } else {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "Venda programada com ID " + input.id + " não encontrada.");
+            out.println(gson.toJson(error));
+        }
         out.flush();
     }
 
@@ -109,9 +120,29 @@ public class VendasProgramadasController extends HttpServlet {
         setCorsHeaders(resp);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
-        JsonObject json = new JsonObject();
-        json.addProperty("message", "Método DELETE não implementado ainda.");
-        out.println(gson.toJson(json));
+
+        String idParam = req.getParameter("id");
+        if (idParam == null || idParam.isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "ID da venda programada é obrigatório para deletar.");
+            out.println(gson.toJson(error));
+            out.flush();
+            return;
+        }
+
+        int id = Integer.parseInt(idParam);
+        if (vendasProgramadasService.removerVendaProgramada(id)) {
+            JsonObject json = new JsonObject();
+            json.addProperty("message", "Venda programada deletada com sucesso!");
+            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            out.println(gson.toJson(json));
+        } else {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            JsonObject error = new JsonObject();
+            error.addProperty("error", "Venda programada com ID " + id + " não encontrada.");
+            out.println(gson.toJson(error));
+        }
         out.flush();
     }
 
@@ -124,8 +155,6 @@ public class VendasProgramadasController extends HttpServlet {
     private static class VendasProgramadasInput {
         private int id;
         private String dataVenda;
-        private double valorVenda;
-        private double custoProduto;
         private int produtoId;
         private Integer empresaId;
     }

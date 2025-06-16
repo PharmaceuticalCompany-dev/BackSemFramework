@@ -5,21 +5,18 @@ import java.time.LocalDate;
 public class VendasProgramadas {
     private int id;
     private LocalDate dataVenda;
-    private double valorVenda;
-    private double custoProduto;
     private int produtoId;
     private Integer empresaId;
 
+    private double valorVendaCalculado;
+    private double custoProdutoCalculado;
 
     public VendasProgramadas() {
     }
 
-
-    public VendasProgramadas(int id, LocalDate dataVenda, double valorVenda, double custoProduto, int produtoId, Integer empresaId) {
+    public VendasProgramadas(int id, LocalDate dataVenda, int produtoId, Integer empresaId) {
         this.id = id;
         this.dataVenda = dataVenda;
-        this.valorVenda = valorVenda;
-        this.custoProduto = custoProduto;
         this.produtoId = produtoId;
         this.empresaId = empresaId;
     }
@@ -40,24 +37,24 @@ public class VendasProgramadas {
         this.dataVenda = dataVenda;
     }
 
-    public double getValorVenda() {
-        return valorVenda;
+    public double getValorVendaCalculado() {
+        return valorVendaCalculado;
     }
 
-    public void setValorVenda(double valorVenda) {
-        this.valorVenda = valorVenda;
+    public void setValorVendaCalculado(double valorVendaCalculado) {
+        this.valorVendaCalculado = valorVendaCalculado;
     }
 
-    public double getCustoProduto() {
-        return custoProduto;
+    public double getCustoProdutoCalculado() {
+        return custoProdutoCalculado;
     }
 
-    public void setCustoProduto(double custoProduto) {
-        this.custoProduto = custoProduto;
+    public void setCustoProdutoCalculado(double custoProdutoCalculado) {
+        this.custoProdutoCalculado = custoProdutoCalculado;
     }
 
     public double getLucro() {
-        return valorVenda - custoProduto;
+        return valorVendaCalculado - custoProdutoCalculado;
     }
 
     public int getAno() {
