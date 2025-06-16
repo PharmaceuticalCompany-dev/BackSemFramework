@@ -8,6 +8,7 @@ public class VendasProgramadas {
     private int produtoId;
     private Integer empresaId;
     private int quantidade;
+    private boolean concluida = false;
 
     private double valorVendaCalculado;
     private double custoProdutoCalculado;
@@ -15,12 +16,21 @@ public class VendasProgramadas {
     public VendasProgramadas() {
     }
 
-    public VendasProgramadas(int id, LocalDate dataVenda, int produtoId, int quantidade, Integer empresaId) {
+    public boolean isConcluida() {
+        return concluida;
+    }
+
+    public void setConcluida(boolean concluida) {
+        this.concluida = concluida;
+    }
+
+    public VendasProgramadas(int id, LocalDate dataVenda, int produtoId, int quantidade, boolean concluida, Integer empresaId) {
         this.id = id;
         this.dataVenda = dataVenda;
         this.produtoId = produtoId;
         this.empresaId = empresaId;
         this.quantidade = quantidade;
+        this.concluida = concluida;
     }
 
     public int getQuantidade() {

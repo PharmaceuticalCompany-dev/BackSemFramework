@@ -66,6 +66,7 @@ public class VendasProgramadasController extends HttpServlet {
                 LocalDate.parse(input.dataVenda, DateTimeFormatter.ISO_LOCAL_DATE),
                 input.produtoId,
                 input.quantidade,
+                false,
                 input.empresaId
         );
 
@@ -100,6 +101,7 @@ public class VendasProgramadasController extends HttpServlet {
                 LocalDate.parse(input.dataVenda, DateTimeFormatter.ISO_LOCAL_DATE),
                 input.produtoId,
                 input.quantidade,
+                input.concluida,
                 input.empresaId
         );
 
@@ -159,6 +161,7 @@ public class VendasProgramadasController extends HttpServlet {
         private String dataVenda;
         private int produtoId;
         private int quantidade;
+        private boolean concluida;
         private Integer empresaId;
     }
 }

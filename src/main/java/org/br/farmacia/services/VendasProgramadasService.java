@@ -13,10 +13,12 @@ import java.util.List;
 public class VendasProgramadasService {
     List<VendasProgramadas> vendasProgramadas;
 
+    private final ServletContext context;
     private VendasProgramadasRepository vendasProgramadasRepository;
     private ProdutoRepository produtoRepository;
 
     public VendasProgramadasService(ServletContext context) {
+        this.context = context;
         this.vendasProgramadasRepository = new VendasProgramadasRepository(context);
         this.produtoRepository = new ProdutoRepository(context);
     }
@@ -64,6 +66,23 @@ public class VendasProgramadasService {
         return estimativaLucroAnual;
     }
 
+
+
+    public boolean concluirVendaProgramada(int id) {
+        VendasProgramadas venda = vendasProgramadasRepository.findById(id);
+
+        if (venda == null || venda.isConcluida()) {
+            return false;
+        }
+
+        CaixaServices caixaServices = new CaixaServices(context);
+        String descricao = "Venda programada concluída - Produto ID: " + venda.getProdutoId();
+
+        caixaServices.registrarVendaDeProdutos(venda.getEmpresaId(), venda.getValorVendaCalculado(), descricao);
+
+        venda.setConcluida(true);
+        return vendasProgramadasRepository.update(venda);
+    }
 
 
 

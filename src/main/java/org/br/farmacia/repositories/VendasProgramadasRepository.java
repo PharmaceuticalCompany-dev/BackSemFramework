@@ -21,7 +21,7 @@ public class VendasProgramadasRepository {
 
     public VendasProgramadas findById(int id) {
         VendasProgramadas vendasProgramadas = null;
-        String sql = "SELECT ID, DATA_VENDA, PRODUTO_ID, QUANTIDADE, EMPRESA_ID FROM VENDAS_PROGRAMADAS WHERE ID = ?";
+        String sql = "SELECT ID, DATA_VENDA, PRODUTO_ID, QUANTIDADE, CONCLUIDA, EMPRESA_ID FROM VENDAS_PROGRAMADAS WHERE ID = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -32,6 +32,7 @@ public class VendasProgramadasRepository {
                     vendasProgramadas.setDataVenda(rs.getDate("DATA_VENDA").toLocalDate());
                     vendasProgramadas.setProdutoId(rs.getInt("PRODUTO_ID"));
                     vendasProgramadas.setQuantidade(rs.getInt("QUANTIDADE"));
+                    vendasProgramadas.setConcluida(rs.getBoolean("CONCLUIDA"));
                     vendasProgramadas.setEmpresaId(rs.getInt("EMPRESA_ID"));
 
                     Produto produto = produtoRepository.findById(vendasProgramadas.getProdutoId());
@@ -49,13 +50,14 @@ public class VendasProgramadasRepository {
     }
 
     public boolean save(VendasProgramadas vendasProgramadas) {
-        String sql = "INSERT INTO VENDAS_PROGRAMADAS (DATA_VENDA, PRODUTO_ID, QUANTIDADE, EMPRESA_ID) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO VENDAS_PROGRAMADAS (DATA_VENDA, PRODUTO_ID, QUANTIDADE, CONCLUIDA, EMPRESA_ID) VALUES (?, ?, ?, ?, ?)";
         int affectedRows = 0;
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setDate(1, Date.valueOf(vendasProgramadas.getDataVenda()));
             ps.setInt(2, vendasProgramadas.getProdutoId());
             ps.setInt(3, vendasProgramadas.getQuantidade());
-            ps.setObject(4, vendasProgramadas.getEmpresaId());
+            ps.setBoolean(4, vendasProgramadas.isConcluida());
+            ps.setObject(5, vendasProgramadas.getEmpresaId());
 
             affectedRows = ps.executeUpdate();
 
@@ -74,14 +76,15 @@ public class VendasProgramadasRepository {
     }
 
     public boolean update(VendasProgramadas vendasProgramadas) {
-        String sql = "UPDATE VENDAS_PROGRAMADAS SET DATA_VENDA = ?, PRODUTO_ID = ?, QUANTIDADE = ?, EMPRESA_ID = ? WHERE ID = ?";
+        String sql = "UPDATE VENDAS_PROGRAMADAS SET DATA_VENDA = ?, PRODUTO_ID = ?, QUANTIDADE = ?, CONCLUIDA = ?, EMPRESA_ID = ? WHERE ID = ?";
         int affectedRows = 0;
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(vendasProgramadas.getDataVenda()));
             ps.setInt(2, vendasProgramadas.getProdutoId());
             ps.setInt(3, vendasProgramadas.getQuantidade());
-            ps.setObject(3, vendasProgramadas.getEmpresaId());
-            ps.setInt(4, vendasProgramadas.getId());
+            ps.setBoolean(4, vendasProgramadas.isConcluida());
+            ps.setObject(5, vendasProgramadas.getEmpresaId());
+            ps.setInt(6, vendasProgramadas.getId());
             affectedRows = ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Erro ao atualizar venda programada: " + e.getMessage());
@@ -105,7 +108,7 @@ public class VendasProgramadasRepository {
 
     public List<VendasProgramadas> findAll() {
         List<VendasProgramadas> vendasProgramadas = new ArrayList<>();
-        String sql = "SELECT ID, DATA_VENDA, PRODUTO_ID, QUANTIDADE, EMPRESA_ID FROM VENDAS_PROGRAMADAS";
+        String sql = "SELECT ID, DATA_VENDA, PRODUTO_ID, QUANTIDADE, CONCLUIDA, EMPRESA_ID FROM VENDAS_PROGRAMADAS";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
@@ -115,6 +118,7 @@ public class VendasProgramadasRepository {
                     vendaProgramada.setDataVenda(rs.getDate("DATA_VENDA").toLocalDate());
                     vendaProgramada.setProdutoId(rs.getInt("PRODUTO_ID"));
                     vendaProgramada.setQuantidade(rs.getInt("QUANTIDADE"));
+                    vendaProgramada.setConcluida(rs.getBoolean("CONCLUIDA"));
                     vendaProgramada.setEmpresaId(rs.getInt("EMPRESA_ID"));
 
                     Produto produto = produtoRepository.findById(vendaProgramada.getProdutoId());

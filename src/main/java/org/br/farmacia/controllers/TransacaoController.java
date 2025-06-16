@@ -38,6 +38,33 @@ public class TransacaoController extends HttpServlet {
     }
 
     @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setCorsHeaders(resp);
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
+        String empresaIdParam = req.getParameter("empresaId");
+        if (empresaIdParam == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println(gson.toJson("Parâmetro empresaId é obrigatório."));
+            out.flush();
+            return;
+        }
+
+        try {
+            int empresaId = Integer.parseInt(empresaIdParam);
+            var transacoes = caixaServices.listarTransacoes(empresaId);
+
+            out.println(gson.toJson(transacoes));
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println(gson.toJson("Parâmetro empresaId inválido."));
+        }
+        out.flush();
+    }
+
+
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         setCorsHeaders(resp);
         resp.setContentType("application/json");
